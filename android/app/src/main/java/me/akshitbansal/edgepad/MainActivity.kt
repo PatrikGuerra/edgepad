@@ -2427,11 +2427,15 @@ class MainActivity :
     private fun inIntro(): Boolean =
         screen == Screen.OPENING || screen == Screen.ONBOARDING || (screen == Screen.USES && !settings.onboarded)
 
+    /** BLUETOOTH_CONNECT only exists on Android 12+; Android 11 and older use the install-time BLUETOOTH. */
+    private val BT_PERMISSION: String =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) Manifest.permission.BLUETOOTH_CONNECT else Manifest.permission.BLUETOOTH
+
     private fun refreshPicker() {
         // The guide comes first; the permission prompts wait for the list they are asked for.
         if (inIntro()) return
         val adapter = getSystemService(BluetoothManager::class.java)?.adapter
-        val permitted = checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+        val permitted = checkSelfPermission(BT_PERMISSION) == PackageManager.PERMISSION_GRANTED
         // Asked for once by itself, where it used to be asked for on every refresh; after a refusal the
         // Devices list offers the way back instead, which after "don't ask again" is the app's settings page,
         // since asking again would then be refused without a word.
@@ -2505,7 +2509,7 @@ class MainActivity :
             }
 
             PickerHint.BLUETOOTH_PERMISSION -> {
-                if (shouldShowRequestPermissionRationale(Manifest.permission.BLUETOOTH_CONNECT)) {
+                if (shouldShowRequestPermissionRationale(BT_PERMISSION)) {
                     picker.setMessage(getString(R.string.permission_needed), getString(R.string.allow_permission)) {
                         askPermission()
                     }
@@ -2580,7 +2584,7 @@ class MainActivity :
         // The reason stays on the list behind the system's question, and goes when the answer refreshes it.
         permissionReason = R.string.permission_reason
         picker.setMessage(getString(permissionReason))
-        requestPermissions(arrayOf(Manifest.permission.BLUETOOTH_CONNECT), REQUEST_BLUETOOTH)
+        requestPermissions(arrayOf(BT_PERMISSION), REQUEST_BLUETOOTH)
     }
 
     /** Some builds have no Bluetooth page to open; the app's own page is the nearest thing. */
@@ -2611,7 +2615,7 @@ class MainActivity :
     private fun bluetoothReady(): Boolean {
         val adapter = getSystemService(BluetoothManager::class.java)?.adapter ?: return false
         return adapter.isEnabled &&
-            checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+            checkSelfPermission(BT_PERMISSION) == PackageManager.PERMISSION_GRANTED
     }
 
     /**
@@ -2623,7 +2627,7 @@ class MainActivity :
         val adapter = getSystemService(BluetoothManager::class.java)?.adapter ?: return emptyList()
         // Checked here and not through bluetoothReady(), so lint sees the permission check next to its use.
         if (!adapter.isEnabled) return emptyList()
-        if (checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+        if (checkSelfPermission(BT_PERMISSION) != PackageManager.PERMISSION_GRANTED) {
             return emptyList()
         }
         return try {
@@ -2760,7 +2764,7 @@ class MainActivity :
     private fun tappedUnpairedBluetooth() {
         val adapterOn = getSystemService(BluetoothManager::class.java)?.adapter?.isEnabled == true
         val permitted =
-            checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED
+            checkSelfPermission(BT_PERMISSION) == PackageManager.PERMISSION_GRANTED
         when (bluetoothTapHint(adapterOn, permitted)) {
             BluetoothTapHint.NOT_READY_OFF -> {
                 val settingsLabel = getString(R.string.open_bluetooth_settings)

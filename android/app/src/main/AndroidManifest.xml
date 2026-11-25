@@ -4,6 +4,7 @@
   <!-- Not required: a phone without Bluetooth can still reach a laptop over Wi-Fi or USB tethering. -->
   <uses-feature android:name="android.hardware.bluetooth" android:required="false" />
   <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+  <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
   <!-- Finding laptops on the Wi-Fi and over USB tethering. -->
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
   <!-- The phone's own link speed, band and signal on the Network page. Never the network name: that needs Location. -->

@@ -64,7 +64,9 @@ object Installer {
                 setAppPackageName(context.packageName)
                 // An app updating itself can be spared the system's "update this app?" question. Whether
                 // it is spared is the system's decision; when it is not, StatusReceiver shows the question.
-                setRequireUserAction(PackageInstaller.SessionParams.USER_ACTION_NOT_REQUIRED)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    setRequireUserAction(PackageInstaller.SessionParams.USER_ACTION_NOT_REQUIRED)
+                }
             }
         return try {
             val id = installer.createSession(params)

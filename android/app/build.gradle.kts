@@ -13,7 +13,7 @@ android {
     defaultConfig {
         applicationId = "me.akshitbansal.edgepad"
         // Android 12: one Bluetooth permission path (BLUETOOTH_CONNECT).
-        minSdk = 31
+        minSdk = 30
         targetSdk = 37
         // The release workflow passes both from the tag and its run number, which only ever increases.
         versionCode = providers.gradleProperty("versionCode").orNull?.toInt() ?: 1

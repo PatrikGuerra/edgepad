@@ -13,6 +13,7 @@ import android.graphics.drawable.InsetDrawable
 import android.graphics.drawable.LayerDrawable
 import android.graphics.drawable.StateListDrawable
 import android.text.TextPaint
+import android.os.Build
 import android.text.TextUtils
 import android.util.TypedValue
 import android.view.Gravity
@@ -1063,7 +1064,10 @@ fun Window.hideBars() {
  */
 fun Window.fillCutout() {
     // Before Android 15 the decor still insets content by the cutout; edge-to-edge is only enforced from there on.
-    setDecorFitsSystemWindows(false)
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+        @Suppress("DEPRECATION")
+        setDecorFitsSystemWindows(false)
+    }
     attributes =
         attributes.apply {
             layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS

@@ -572,6 +572,7 @@ class ControlSurface(
         if (insets != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) for (position in CORNER_POSITIONS) corner = maxOf(corner, insets.getRoundedCorner(position)?.radius ?: 0)
         }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) corner = ScreenCorner.legacyRadius(context, settings)
         perimeter = Perimeter(w.toFloat(), h.toFloat(), RulerGeometry.bend(corner.toFloat(), density))
         dials.forEachIndexed { i, dial ->
             // A half of a split corner sits off the corner on its own edge, clear of the bend; [DialSpan] below

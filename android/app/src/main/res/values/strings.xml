@@ -220,6 +220,8 @@
   <string name="dial_length">Dial length</string>
   <string name="dial_length_value">%1$d dp</string>
   <string name="dial_height">Dial height</string>
+  <string name="screen_corner">Screen corner</string>
+  <string name="screen_corner_auto">Auto</string>
   <string name="multiplier_value">×%1$.1f</string>
   <string name="haptic_ticks">Haptic feedback</string>
   <string name="snap_round">Snap to round numbers</string>

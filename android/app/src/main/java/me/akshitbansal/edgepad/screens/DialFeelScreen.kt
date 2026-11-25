@@ -3,6 +3,7 @@ package me.akshitbansal.edgepad.screens
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
@@ -34,6 +35,7 @@ object DialFeelScreen {
     private val sensitivityRange = StepRange(Settings.MIN_SENSITIVITY, Settings.MAX_SENSITIVITY, 0.1f)
     private val lengthRange = StepRange(Settings.MIN_DIAL_LENGTH, Settings.MAX_DIAL_LENGTH, 10f)
     private val heightRange = StepRange(Settings.MIN_DIAL_HEIGHT, Settings.MAX_DIAL_HEIGHT, 0.1f)
+    private val cornerRange = StepRange(2f, Settings.MAX_SCREEN_CORNER, 2f)
 
     /**
      * Owner, 2026-11-20: Hide dials and Floating dials moved here from the Controls popup. [dialsHidden] and
@@ -104,6 +106,24 @@ object DialFeelScreen {
                                 preview.show(settings.dialLength, settings.dialHeight)
                             },
                         )
+                        // Android 12 reads the corner from the display; before it the owner sets it, step 0 is Auto.
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                            hairline()
+                            add(
+                                ui.slider(
+                                    ui.string(R.string.screen_corner),
+                                    cornerRange.steps + 1,
+                                    if (settings.screenCorner > 0f) cornerRange.stepOf(settings.screenCorner) + 1 else 0,
+                                    { step ->
+                                        if (step == 0) {
+                                            ui.string(R.string.screen_corner_auto)
+                                        } else {
+                                            ui.string(R.string.dial_length_value, cornerRange.valueAt(step - 1).roundToInt())
+                                        }
+                                    },
+                                ) { step -> settings.screenCorner = if (step == 0) 0f else cornerRange.valueAt(step - 1) },
+                            )
+                        }
                         hairline()
                         add(ui.toggle(ui.string(R.string.haptic_ticks), settings.haptics) { settings.haptics = it })
                         hairline()

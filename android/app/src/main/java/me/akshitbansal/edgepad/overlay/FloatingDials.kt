@@ -20,6 +20,7 @@ import me.akshitbansal.edgepad.surface.DialKind
 import me.akshitbansal.edgepad.surface.DialSpan
 import me.akshitbansal.edgepad.surface.Perimeter
 import me.akshitbansal.edgepad.surface.RulerGeometry
+import me.akshitbansal.edgepad.surface.ScreenCorner
 import me.akshitbansal.edgepad.surface.RulerPainter
 import kotlin.math.roundToInt
 import android.provider.Settings as SystemSettings
@@ -76,6 +77,7 @@ class FloatingDials(
         val insets = metrics.windowInsets
         var corner = 0
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) for (position in CORNER_POSITIONS) corner = maxOf(corner, insets.getRoundedCorner(position)?.radius ?: 0)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) corner = ScreenCorner.legacyRadius(app, settings)
         val perimeter = Perimeter(width.toFloat(), height.toFloat(), RulerGeometry.bend(corner.toFloat(), density))
         val painter = RulerPainter(app.resources.displayMetrics, settings.dialLength, settings.dialHeight)
         for (spec in specs) dials.add(build(spec))

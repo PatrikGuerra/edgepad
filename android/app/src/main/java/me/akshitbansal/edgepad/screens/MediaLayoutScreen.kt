@@ -28,6 +28,7 @@ import me.akshitbansal.edgepad.surface.Perimeter
 import me.akshitbansal.edgepad.surface.PieceGeometry
 import me.akshitbansal.edgepad.surface.RulerGeometry
 import me.akshitbansal.edgepad.surface.RulerPainter
+import me.akshitbansal.edgepad.surface.ScreenCorner
 import me.akshitbansal.edgepad.surface.SurfacePainter
 import me.akshitbansal.edgepad.surface.SurfaceWidget
 import me.akshitbansal.edgepad.surface.WidgetPainter
@@ -301,6 +302,7 @@ object MediaLayoutScreen {
             if (insets != null) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) for (p in CORNER_POSITIONS) round = maxOf(round, insets.getRoundedCorner(p)?.radius ?: 0)
             }
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) round = ScreenCorner.legacyRadius(context, settings)
             perimeter = Perimeter(w.toFloat(), h.toFloat(), RulerGeometry.bend(round.toFloat(), density))
             val along = ruler.halfLengthDp * density
             dials.forEachIndexed { i, dial ->

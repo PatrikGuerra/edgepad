@@ -266,6 +266,9 @@ class Settings(
     /** Half a corner ruler's length along the edge, in dp. */
     var dialLength by bounded(KEY_DIAL_LENGTH, DEFAULT_DIAL_LENGTH, MIN_DIAL_LENGTH, MAX_DIAL_LENGTH)
 
+    /** The screen's corner radius in dp, for Android 11 and older, which cannot read it; 0 is Auto. */
+    var screenCorner by bounded("screenCorner", 0f, 0f, MAX_SCREEN_CORNER)
+
     /** How tall the ticks stand, as a multiple of the base height. */
     var dialHeight by bounded(KEY_DIAL_HEIGHT, DEFAULT_DIAL_HEIGHT, MIN_DIAL_HEIGHT, MAX_DIAL_HEIGHT)
 
@@ -623,6 +626,7 @@ class Settings(
         const val MIN_DIAL_LENGTH = 60f
         const val MAX_DIAL_LENGTH = 320f
         const val DEFAULT_DIAL_LENGTH = 100f
+        const val MAX_SCREEN_CORNER = 60f
         const val MIN_DIAL_HEIGHT = 0.4f
         const val MAX_DIAL_HEIGHT = 1.8f
         const val DEFAULT_DIAL_HEIGHT = 0.6f

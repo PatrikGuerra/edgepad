@@ -220,6 +220,8 @@
   <string name="dial_length">Comprimento da régua</string>
   <string name="dial_length_value">%1$d dp</string>
   <string name="dial_height">Altura da régua</string>
+  <string name="screen_corner">Canto da tela</string>
+  <string name="screen_corner_auto">Automático</string>
   <string name="multiplier_value">×%1$.1f</string>
   <string name="haptic_ticks">Resposta tátil</string>
   <string name="snap_round">Ajustar a números redondos</string>

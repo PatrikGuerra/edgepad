@@ -361,19 +361,11 @@ public final class CloudflareSpeedTransport: SpeedTransport {
     }
 }
 
+/// Why a speed test leg failed: no usable URL, an answer other than 200, or no answer in time.
 enum SpeedFailure: Error {
     case badAddress
     case badStatus
     case timedOut
-}
-
-private final class NoRedirects: NSObject, URLSessionTaskDelegate {
-    func urlSession(
-        _ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse,
-        newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void
-    ) {
-        completionHandler(nil)
-    }
 }
 
 /// Counts each read of one download, refuses anything but a 200 (a redirect comes back as its own status and fails

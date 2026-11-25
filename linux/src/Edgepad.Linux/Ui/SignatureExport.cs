@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Numerics;
 using Avalonia;
 using Avalonia.Controls;
@@ -21,48 +20,14 @@ namespace Edgepad.Ui;
 /// </summary>
 internal static class SignatureExport
 {
-    /// <summary>Breathing room around the ink, in pixels, so the stroke's anti-aliased edge is never clipped.</summary>
-    internal const int Margin = 8;
-
     private const string PngType = "image/png";
 
     /// <summary>
     /// The part of a <paramref name="width"/> by <paramref name="height"/> screen that the ink and its margin cover;
-    /// null when there is no ink. The Windows app's crop, to the pixel.
+    /// null when there is no ink. See <see cref="SignatureCrop.Of"/>.
     /// </summary>
-    public static PixelRect? CropRect(IReadOnlyList<Stroke> strokes, int width, int height)
-    {
-        if (width <= 0 || height <= 0)
-        {
-            return null;
-        }
-
-        var min = new Vector2(float.MaxValue);
-        var max = new Vector2(float.MinValue);
-        var any = false;
-        foreach (var stroke in strokes)
-        {
-            if (stroke.Ink(width, height) is not { } ink)
-            {
-                continue;
-            }
-
-            min = Vector2.Min(min, ink.Min);
-            max = Vector2.Max(max, ink.Max);
-            any = true;
-        }
-
-        if (!any)
-        {
-            return null;
-        }
-
-        var left = Math.Max(0, (int)MathF.Floor(min.X) - Margin);
-        var top = Math.Max(0, (int)MathF.Floor(min.Y) - Margin);
-        var right = Math.Min(width, (int)MathF.Ceiling(max.X) + Margin);
-        var bottom = Math.Min(height, (int)MathF.Ceiling(max.Y) + Margin);
-        return right > left && bottom > top ? new PixelRect(left, top, right - left, bottom - top) : null;
-    }
+    public static PixelRect? CropRect(IReadOnlyList<Stroke> strokes, int width, int height) =>
+        SignatureCrop.Of(strokes, width, height) is { } c ? new PixelRect(c.X, c.Y, c.Width, c.Height) : null;
 
     /// <summary>The PNG, or null when there is nothing to export. On the UI thread: it draws with Avalonia's renderer.</summary>
     public static byte[]? Render(IReadOnlyList<Stroke> strokes, int width, int height)
@@ -212,44 +177,6 @@ internal static class SignatureExport
             && Path.TrimEndingDirectorySeparator(chosen) != Path.TrimEndingDirectorySeparator(home)
             ? chosen
             : fallback;
-    }
-
-    /// <summary>The file name stem for a signature saved at <paramref name="now"/>.</summary>
-    internal static string Stem(DateTime now) =>
-        string.Create(CultureInfo.InvariantCulture, $"signature-{now:yyyyMMdd-HHmmss}");
-
-    /// <summary>
-    /// Writes <paramref name="png"/> as <c>stem.png</c> in <paramref name="folder"/>, or <c>stem-2.png</c>,
-    /// <c>stem-3.png</c> and on when that is taken, and returns the path. Never over an existing file: two saves in
-    /// one second share a stem, and overwriting would lose the first signature. CreateNew rather than a check first,
-    /// so a file that appears between the check and the write cannot be overwritten either.
-    /// </summary>
-    internal static string WriteNew(string folder, string stem, byte[] png)
-    {
-        Directory.CreateDirectory(folder);
-        for (var n = 1; ; n++)
-        {
-            var name = n == 1 ? $"{stem}.png" : string.Create(CultureInfo.InvariantCulture, $"{stem}-{n}.png");
-            var path = Path.Combine(folder, name);
-            FileStream file;
-            try
-            {
-                file = new FileStream(path, FileMode.CreateNew, FileAccess.Write);
-            }
-            catch (IOException) when (File.Exists(path))
-            {
-                // Taken: try the next number. Only the open is caught, so a failed write (a full disk) still fails
-                // the save rather than spinning through names.
-                continue;
-            }
-
-            using (file)
-            {
-                file.Write(png);
-            }
-
-            return path;
-        }
     }
 
     /// <summary>

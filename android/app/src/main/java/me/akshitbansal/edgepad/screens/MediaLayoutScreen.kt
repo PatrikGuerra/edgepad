@@ -8,6 +8,7 @@ import android.graphics.Paint
 import android.graphics.RectF
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
+import android.os.Build
 import android.view.RoundedCorner
 import android.view.View
 import android.view.accessibility.AccessibilityNodeProvider
@@ -298,7 +299,7 @@ object MediaLayoutScreen {
             var round = 0
             val insets = rootWindowInsets
             if (insets != null) {
-                for (p in CORNER_POSITIONS) round = maxOf(round, insets.getRoundedCorner(p)?.radius ?: 0)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) for (p in CORNER_POSITIONS) round = maxOf(round, insets.getRoundedCorner(p)?.radius ?: 0)
             }
             perimeter = Perimeter(w.toFloat(), h.toFloat(), RulerGeometry.bend(round.toFloat(), density))
             val along = ruler.halfLengthDp * density

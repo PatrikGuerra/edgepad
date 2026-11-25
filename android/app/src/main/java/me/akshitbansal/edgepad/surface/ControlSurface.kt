@@ -18,6 +18,7 @@ import android.text.TextUtils
 import android.util.TypedValue
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
+import android.os.Build
 import android.view.RoundedCorner
 import android.view.Surface
 import android.view.View
@@ -569,7 +570,7 @@ class ControlSurface(
         val insets = rootWindowInsets
         var corner = 0
         if (insets != null) {
-            for (position in CORNER_POSITIONS) corner = maxOf(corner, insets.getRoundedCorner(position)?.radius ?: 0)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) for (position in CORNER_POSITIONS) corner = maxOf(corner, insets.getRoundedCorner(position)?.radius ?: 0)
         }
         perimeter = Perimeter(w.toFloat(), h.toFloat(), RulerGeometry.bend(corner.toFloat(), density))
         dials.forEachIndexed { i, dial ->

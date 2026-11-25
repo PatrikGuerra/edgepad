@@ -5,6 +5,7 @@ import android.graphics.PixelFormat
 import android.util.Log
 import android.view.Gravity
 import android.view.HapticFeedbackConstants
+import android.os.Build
 import android.view.RoundedCorner
 import android.view.WindowManager
 import me.akshitbansal.edgepad.Palette
@@ -74,7 +75,7 @@ class FloatingDials(
         shownScale = fontScale
         val insets = metrics.windowInsets
         var corner = 0
-        for (position in CORNER_POSITIONS) corner = maxOf(corner, insets.getRoundedCorner(position)?.radius ?: 0)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) for (position in CORNER_POSITIONS) corner = maxOf(corner, insets.getRoundedCorner(position)?.radius ?: 0)
         val perimeter = Perimeter(width.toFloat(), height.toFloat(), RulerGeometry.bend(corner.toFloat(), density))
         val painter = RulerPainter(app.resources.displayMetrics, settings.dialLength, settings.dialHeight)
         for (spec in specs) dials.add(build(spec))

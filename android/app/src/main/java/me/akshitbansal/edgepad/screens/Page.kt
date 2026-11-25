@@ -1062,6 +1062,8 @@ fun Window.hideBars() {
  * the control surface draws under it. Activities only; a dialog stays inside the safe area.
  */
 fun Window.fillCutout() {
+    // Before Android 15 the decor still insets content by the cutout; edge-to-edge is only enforced from there on.
+    setDecorFitsSystemWindows(false)
     attributes =
         attributes.apply {
             layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS

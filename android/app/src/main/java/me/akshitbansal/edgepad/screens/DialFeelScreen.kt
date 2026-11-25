@@ -121,7 +121,10 @@ object DialFeelScreen {
                                             ui.string(R.string.dial_length_value, cornerRange.valueAt(step - 1).roundToInt())
                                         }
                                     },
-                                ) { step -> settings.screenCorner = if (step == 0) 0f else cornerRange.valueAt(step - 1) },
+                                ) { step ->
+                                    settings.screenCorner = if (step == 0) 0f else cornerRange.valueAt(step - 1)
+                                    preview.show(settings.dialLength, settings.dialHeight)
+                                },
                             )
                         }
                         hairline()

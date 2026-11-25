@@ -3,6 +3,7 @@ package me.akshitbansal.edgepad.screens
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.os.Build
 import android.view.View
 import me.akshitbansal.edgepad.Palette
 import me.akshitbansal.edgepad.R
@@ -10,7 +11,9 @@ import me.akshitbansal.edgepad.Settings
 import me.akshitbansal.edgepad.Space
 import me.akshitbansal.edgepad.surface.Dial
 import me.akshitbansal.edgepad.surface.Perimeter
+import me.akshitbansal.edgepad.surface.RulerGeometry
 import me.akshitbansal.edgepad.surface.RulerPainter
+import me.akshitbansal.edgepad.surface.ScreenCorner
 
 /**
  * A live corner of the control surface, drawn with the same painter at the length and height the sliders
@@ -19,7 +22,7 @@ import me.akshitbansal.edgepad.surface.RulerPainter
  */
 class DialPreview(
     context: Context,
-    settings: Settings,
+    private val settings: Settings,
 ) : View(context) {
     /** Android lint requires a (Context) constructor on every custom View; nothing inflates this one. */
     constructor(context: Context) : this(context, Settings(context))
@@ -72,8 +75,16 @@ class DialPreview(
         if (width == 0 || height == 0) return
         val need = (painter.halfLengthDp + FIT_PAD_DP) * density
         scale = minOf(1f, minOf(width, height) / need)
-        perimeter = Perimeter(width / scale, height / scale, BEND_DP * density)
+        perimeter = Perimeter(width / scale, height / scale, bendPx())
     }
+
+    /** Before Android 12 the preview follows the Screen corner setting, so moving it shows here at once. */
+    private fun bendPx(): Float =
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            RulerGeometry.bend(ScreenCorner.legacyRadius(context, settings).toFloat(), density)
+        } else {
+            BEND_DP * density
+        }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)

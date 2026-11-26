@@ -272,6 +272,14 @@ class Settings(
     /** How tall the ticks stand, as a multiple of the base height. */
     var dialHeight by bounded(KEY_DIAL_HEIGHT, DEFAULT_DIAL_HEIGHT, MIN_DIAL_HEIGHT, MAX_DIAL_HEIGHT)
 
+    /** Rest areas: the edges where a resting hand is ignored ([RestEdges]), how thick, and whether they are drawn. */
+    var restLeft by flag("restLeft", false)
+    var restTop by flag("restTop", false)
+    var restRight by flag("restRight", false)
+    var restBottom by flag("restBottom", true)
+    var restWidth by bounded("restWidth", DEFAULT_REST_WIDTH, 0f, MAX_REST_WIDTH)
+    var restShown by flag("restShown", true)
+
     /** How much a dial moves per dp of slide, as a multiple of the base rate. The fallback for every corner. */
     var sensitivity by bounded(KEY_SENSITIVITY, DEFAULT_SENSITIVITY, MIN_SENSITIVITY, MAX_SENSITIVITY)
 
@@ -627,6 +635,8 @@ class Settings(
         const val MAX_DIAL_LENGTH = 320f
         const val DEFAULT_DIAL_LENGTH = 100f
         const val MAX_SCREEN_CORNER = 60f
+        const val DEFAULT_REST_WIDTH = 0.12f
+        const val MAX_REST_WIDTH = 0.3f
         const val MIN_DIAL_HEIGHT = 0.4f
         const val MAX_DIAL_HEIGHT = 1.8f
         const val DEFAULT_DIAL_HEIGHT = 0.6f

@@ -441,6 +441,14 @@ class ControlSurface(
         }
     private val fill = Paint(Paint.ANTI_ALIAS_FLAG)
 
+    // Rest areas, read once like every other setting: the surface is built again when the settings page closes.
+    private val rest =
+        RestEdges(settings.restLeft, settings.restTop, settings.restRight, settings.restBottom, settings.restWidth)
+    private val restShown = settings.restShown
+
+    // Pointer ids that started in a rest area: never fed to the recogniser and never counted, until they lift.
+    private val resting = HashSet<Int>()
+
     // The now-playing lines are measured and cut here in the very paints the painter draws them with.
     private val titlePaint = surfacePainter.titlePaint
     private val subPaint = surfacePainter.subPaint
@@ -851,6 +859,7 @@ class ControlSurface(
             return
         }
         backdrop.draw(canvas)
+        if (restShown && rest.any && !airMode) drawRest(canvas)
         // Easing back in after Air mouse: one layer for everything that was hidden, made only while it fades.
         val fading = chromeAlpha < 1f && !airMode
         if (fading) fadeLayer(canvas)
@@ -1243,15 +1252,21 @@ class ControlSurface(
                 requestUnbufferedDispatch(event)
                 // With the air mouse on, a resting finger is its clutch and must not also grip the button.
                 trackpad.holdGrips = air()?.works != true
+                // A new touch stream: no hand from an earlier one can still be down.
+                resting.clear()
                 down(event)
-                if (onTrackpad()) air()?.clutchDown()
+                if (onTrackpad() && resting.isEmpty()) air()?.clutchDown()
             }
 
             MotionEvent.ACTION_POINTER_DOWN -> {
                 if (onTrackpad()) {
-                    feed(TrackpadRecognizer.Action.DOWN, event, exclude = -1)
-                    fingers(event, exclude = -1)
-                    timeHold()
+                    if (startsResting(event, event.actionIndex)) {
+                        resting.add(event.getPointerId(event.actionIndex))
+                    } else {
+                        feed(TrackpadRecognizer.Action.DOWN, event, exclude = -1)
+                        fingers(event, exclude = -1)
+                        timeHold()
+                    }
                 }
             }
 
@@ -1260,7 +1275,8 @@ class ControlSurface(
             }
 
             MotionEvent.ACTION_POINTER_UP -> {
-                if (onTrackpad()) {
+                // A resting palm lifting changes nothing the recogniser saw.
+                if (onTrackpad() && !resting.remove(event.getPointerId(event.actionIndex))) {
                     feed(TrackpadRecognizer.Action.UP, event, exclude = event.actionIndex)
                     fingers(event, exclude = event.actionIndex)
                 }
@@ -1372,6 +1388,11 @@ class ControlSurface(
                         lastS = hit[0]
                     }
 
+                    // A touch that starts in a rest area is a hand lying there: remembered, and otherwise ignored.
+                    onTrackpad() && startsResting(event, 0) -> {
+                        resting.add(event.getPointerId(0))
+                    }
+
                     // A locked pad refuses the touch here too, not only on the samples that follow: the
                     // finger never reaches the recogniser and no dot is drawn for it, so the surface does
                     // not spend the gesture pretending to listen.
@@ -1398,6 +1419,8 @@ class ControlSurface(
             }
 
             onTrackpad() -> {
+                // Only resting hands down: nothing for the recogniser to follow.
+                if (resting.size >= event.pointerCount) return
                 for (h in 0 until event.historySize) feedHistorical(event, h)
                 feed(TrackpadRecognizer.Action.MOVE, event, exclude = -1)
                 fingers(event, exclude = -1)
@@ -1506,7 +1529,10 @@ class ControlSurface(
             }
 
             else -> {
-                feed(TrackpadRecognizer.Action.UP, event, exclude = event.actionIndex)
+                // The last finger up was a resting hand: the gesture already ended when the real fingers lifted.
+                if (!resting.remove(event.getPointerId(event.actionIndex))) {
+                    feed(TrackpadRecognizer.Action.UP, event, exclude = event.actionIndex)
+                }
                 fingerCount = 0
                 if (showHints) learnHints(event)
                 trailLength = 0
@@ -1533,6 +1559,7 @@ class ControlSurface(
         pressedStrip = false
         pressedPill = false
         scrubbing = false
+        resting.clear()
         fingerCount = 0
         trailLength = 0
         drawingShape = false
@@ -1650,7 +1677,7 @@ class ControlSurface(
         val before = fingerCount
         var n = 0
         for (i in 0 until event.pointerCount) {
-            if (i == exclude || n == MAX_POINTERS) continue
+            if (i == exclude || n == MAX_POINTERS || event.getPointerId(i) in resting) continue
             fingerXs[n] = event.getX(i)
             fingerYs[n] = event.getY(i)
             n++
@@ -1713,7 +1740,7 @@ class ControlSurface(
     ) {
         var n = 0
         for (i in 0 until event.pointerCount) {
-            if (i == exclude || n == MAX_POINTERS) continue
+            if (i == exclude || n == MAX_POINTERS || event.getPointerId(i) in resting) continue
             touchXs[n] = event.getX(i)
             touchYs[n] = event.getY(i)
             n++
@@ -1721,16 +1748,41 @@ class ControlSurface(
         trackpad.handle(action, touchXs, touchYs, event.eventTime, count = n)
     }
 
+    /** Whether pointer [index] lands in a rest area, on the trackpad (a dial or a button got it first otherwise). */
+    private fun startsResting(
+        event: MotionEvent,
+        index: Int,
+    ): Boolean = rest.contains(event.getX(index), event.getY(index), width.toFloat(), height.toFloat())
+
     private fun feedHistorical(
         event: MotionEvent,
         h: Int,
     ) {
-        val n = minOf(event.pointerCount, MAX_POINTERS)
-        for (i in 0 until n) {
-            touchXs[i] = event.getHistoricalX(i, h)
-            touchYs[i] = event.getHistoricalY(i, h)
+        var n = 0
+        for (i in 0 until event.pointerCount) {
+            if (n == MAX_POINTERS || event.getPointerId(i) in resting) continue
+            touchXs[n] = event.getHistoricalX(i, h)
+            touchYs[n] = event.getHistoricalY(i, h)
+            n++
         }
         trackpad.handle(TrackpadRecognizer.Action.MOVE, touchXs, touchYs, event.getHistoricalEventTime(h), count = n)
+    }
+
+    /** A faint wash over each rest area, so it is clear where a hand may lie. */
+    private fun drawRest(canvas: Canvas) {
+        val w = width.toFloat()
+        val h = height.toFloat()
+        val b = rest.band(w, h)
+        fill.color = ink
+        fill.alpha = REST_ALPHA
+        if (rest.left) canvas.drawRect(0f, 0f, b, h, fill)
+        if (rest.right) canvas.drawRect(w - b, 0f, w, h, fill)
+        // Top and bottom skip the corners a side band already washed, so no square is drawn twice as dark.
+        val from = if (rest.left) b else 0f
+        val to = if (rest.right) w - b else w
+        if (rest.top) canvas.drawRect(from, 0f, to, b, fill)
+        if (rest.bottom) canvas.drawRect(from, h - b, to, h, fill)
+        fill.alpha = ALPHA_OPAQUE.toInt()
     }
 
     override fun onInitializeAccessibilityNodeInfo(info: AccessibilityNodeInfo) {
@@ -1894,6 +1946,9 @@ class ControlSurface(
         private const val RING_START_DEG = -90f
         private const val FULL_TURN_DEG = 360f
         private const val MAX_POINTERS = 10
+
+        // A rest area's wash: enough to see, faint enough that the pad still reads as one surface.
+        private const val REST_ALPHA = 22
         private const val TRAIL = 18
         private const val TRAIL_ALPHA = 200f
         private const val ALPHA_SHIFT = 24

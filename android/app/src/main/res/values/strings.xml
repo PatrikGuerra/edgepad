@@ -178,6 +178,14 @@
   <string name="editor_done">Done</string>
   <string name="media_scale">Size</string>
   <string name="gestures_title">Trackpad</string>
+  <string name="rest_title">Rest areas</string>
+  <string name="rest_left">Left edge</string>
+  <string name="rest_right">Right edge</string>
+  <string name="rest_bottom">Bottom edge</string>
+  <string name="rest_top">Top edge</string>
+  <string name="rest_width">Width</string>
+  <string name="rest_shown">Show the areas</string>
+  <string name="rest_caption">A touch that starts in a rest area is ignored until it lifts, so a hand can lie there. A finger that starts outside and slides in still counts. Dials and buttons in an area still work.</string>
   <plurals name="gestures_fingers">
     <item quantity="one">%1$d finger</item>
     <item quantity="other">%1$d fingers</item>

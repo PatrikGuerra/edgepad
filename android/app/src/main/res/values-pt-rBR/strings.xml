@@ -177,6 +177,14 @@
   <string name="editor_done">Concluir</string>
   <string name="media_scale">Tamanho</string>
   <string name="gestures_title">Touchpad</string>
+  <string name="rest_title">Áreas de apoio</string>
+  <string name="rest_left">Borda esquerda</string>
+  <string name="rest_right">Borda direita</string>
+  <string name="rest_bottom">Borda de baixo</string>
+  <string name="rest_top">Borda de cima</string>
+  <string name="rest_width">Largura</string>
+  <string name="rest_shown">Mostrar as áreas</string>
+  <string name="rest_caption">Um toque que começa numa área de apoio é ignorado até subir, então a mão pode ficar ali. Um dedo que começa fora e entra continua valendo. Réguas e botões dentro da área continuam funcionando.</string>
   <plurals name="gestures_fingers">
     <item quantity="one">%1$d dedo</item>
     <item quantity="many">%1$d de dedos</item>

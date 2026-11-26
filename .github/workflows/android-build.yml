@@ -32,6 +32,9 @@ jobs:
       - name: Build APK
         working-directory: android
         run: ./gradlew --no-daemon assembleDebug
+      - name: Rest-area unit test
+        working-directory: android
+        run: ./gradlew --no-daemon testDebugUnitTest --tests '*RestEdgesTest'
       # Lists every call newer than minSdk (NewApi) without blocking the APK.
       - name: Lint (report only)
         if: always()

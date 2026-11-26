@@ -43,6 +43,33 @@ object SurfaceSettingsScreen {
     private val sensitivityRange =
         StepRange(Settings.MIN_AIR_SENSITIVITY, Settings.MAX_AIR_SENSITIVITY, 0.1f)
     private val deadZoneRange = StepRange(Settings.MIN_AIR_DEAD_ZONE, Settings.MAX_AIR_DEAD_ZONE, 0.01f)
+    private val restRange = StepRange(0f, Settings.MAX_REST_WIDTH, 0.02f)
+
+    /** Rest areas ([me.akshitbansal.edgepad.surface.RestEdges]): which edges, how thick, and whether they are drawn. */
+    private fun Column.restRows(settings: Settings) {
+        section(ui.string(R.string.rest_title))
+        card {
+            add(ui.toggle(ui.string(R.string.rest_left), settings.restLeft) { settings.restLeft = it })
+            hairline()
+            add(ui.toggle(ui.string(R.string.rest_right), settings.restRight) { settings.restRight = it })
+            hairline()
+            add(ui.toggle(ui.string(R.string.rest_bottom), settings.restBottom) { settings.restBottom = it })
+            hairline()
+            add(ui.toggle(ui.string(R.string.rest_top), settings.restTop) { settings.restTop = it })
+            hairline()
+            add(
+                ui.slider(
+                    ui.string(R.string.rest_width),
+                    restRange.steps,
+                    restRange.stepOf(settings.restWidth),
+                    { step -> ui.string(R.string.percent_value, (restRange.valueAt(step) * PERCENT).roundToInt()) },
+                ) { step -> settings.restWidth = restRange.valueAt(step) },
+            )
+            hairline()
+            add(ui.toggle(ui.string(R.string.rest_shown), settings.restShown) { settings.restShown = it })
+        }
+        footnote(ui.string(R.string.rest_caption))
+    }
 
     fun build(
         ui: Ui,
@@ -74,6 +101,7 @@ object SurfaceSettingsScreen {
         card {
             add(ui.link(ui.string(R.string.gestures_title), null, routes.gestures))
         }
+        restRows(settings)
         section(ui.string(R.string.settings_dials))
         card {
             add(ui.link(ui.string(R.string.corners_title), cornersSummary(ui, settings), routes.corners))

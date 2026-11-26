@@ -150,7 +150,8 @@ class XferProgress(
 
     /** Removes [heard] alone, by identity; the others stay. */
     fun removeListener(heard: (XferSnapshot) -> Unit) {
-        listeners.removeIf { it === heard }
+        // removeIf goes through the iterator, which Android 7's CopyOnWriteArrayList cannot remove from.
+        listeners.filter { it === heard }.forEach { listeners.remove(it) }
     }
 
     /** The state now. Safe on any thread. */

@@ -1,5 +1,6 @@
 package me.akshitbansal.edgepad.link.xfer
 
+import android.annotation.TargetApi
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
@@ -108,6 +109,7 @@ class AndroidXferStore(
             .query(uri, arrayOf(MediaStore.MediaColumns.DISPLAY_NAME), null, null, null)
             ?.use { if (it.moveToFirst()) it.getString(0) else null }
 
+    @TargetApi(Build.VERSION_CODES.Q)
     private fun taken(name: String): Boolean =
         context.contentResolver
             .query(

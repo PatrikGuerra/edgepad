@@ -3,7 +3,7 @@ name: Android build
 # Fork only: builds the debug APK (Android 11+) and nothing else.
 on:
   push:
-    branches: [fix/android-11-support]
+    branches: [fix/android-11-support, feature/android-7]
   workflow_dispatch:
 
 permissions:
@@ -32,6 +32,11 @@ jobs:
       - name: Build APK
         working-directory: android
         run: ./gradlew --no-daemon assembleDebug
+      # Lists every call newer than minSdk (NewApi) without blocking the APK.
+      - name: Lint (report only)
+        if: always()
+        working-directory: android
+        run: ./gradlew --no-daemon lintDebug || true
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: edgepad-android

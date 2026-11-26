@@ -58,6 +58,7 @@ object KeyboardScreen {
         size: KeyboardSize,
         mode: FnMode,
         os: DeviceOs?,
+        height: Float,
         onKey: (code: Int, down: Boolean) -> Unit,
         onAction: (ActionId) -> Unit,
         onSettings: () -> Unit,
@@ -79,7 +80,9 @@ object KeyboardScreen {
                     backLabel = ui.string(R.string.back_to_surface),
                 ),
             )
-            addView(keyboard, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
+            // Under 1 the keyboard keeps to the bottom, where the thumbs are, and the room above stays empty.
+            if (height < 1f) addView(View(ui.context), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f - height))
+            addView(keyboard, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, height))
         }
     }
 

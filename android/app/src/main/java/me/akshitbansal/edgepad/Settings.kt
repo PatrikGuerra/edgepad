@@ -237,6 +237,9 @@ class Settings(
      */
     var keyTextScale by bounded(KEY_KEY_TEXT_SCALE, DEFAULT_KEY_TEXT_SCALE, MIN_KEY_TEXT_SCALE, MAX_KEY_TEXT_SCALE)
 
+    /** How much of the room under the bar the keyboard takes, from the bottom up; 1 is all of it. */
+    var keyboardHeight by bounded("keyboardHeight", 1f, MIN_KEYBOARD_HEIGHT, 1f)
+
     /** Which of the six boards the keyboard draws. */
     var keyboardSize: KeyboardSize
         get() = enum(KEY_KEYBOARD_SIZE, DEFAULT_KEYBOARD_SIZE)
@@ -651,6 +654,7 @@ class Settings(
         const val MIN_KEY_TEXT_SCALE = 0.6f
         const val MAX_KEY_TEXT_SCALE = 2f
         const val DEFAULT_KEY_TEXT_SCALE = 1f
+        const val MIN_KEYBOARD_HEIGHT = 0.3f
         val DEFAULT_KEYBOARD_SIZE = KeyboardSize.SEVENTY_FIVE
         val DEFAULT_FUNCTION_KEYS = FnMode.WITH_FN
         const val MIN_MACROS_PER_PAGE = 2

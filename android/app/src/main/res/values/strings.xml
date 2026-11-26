@@ -245,6 +245,8 @@
   <string name="orientation_sideways">Sideways</string>
   <string name="dial_preview_description">Preview of a corner dial at the chosen size</string>
   <string name="keyboard_text_size">Keyboard text size</string>
+  <string name="keyboard_height">Keyboard height</string>
+  <string name="keyboard_height_caption">How much of the screen the keyboard takes. Below 100%, it keeps to the bottom and the keys get shorter.</string>
   <string name="control_color">Control colour</string>
   <string name="control_color_auto">Auto</string>
   <string name="control_color_custom">Custom</string>

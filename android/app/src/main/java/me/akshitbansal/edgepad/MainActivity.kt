@@ -1463,6 +1463,7 @@ class MainActivity :
                         settings.keyboardSize,
                         settings.functionKeys,
                         state.os,
+                        height = settings.keyboardHeight,
                         onKey = sendKey,
                         onAction = { send(it.frame()) },
                         onSettings = { goTo(Screen.KEYBOARD_SETTINGS) },

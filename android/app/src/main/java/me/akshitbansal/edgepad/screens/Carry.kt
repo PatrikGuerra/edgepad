@@ -14,6 +14,9 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import me.akshitbansal.edgepad.Motion
 import java.lang.ref.WeakReference
+import me.akshitbansal.edgepad.a11yHeading
+import me.akshitbansal.edgepad.animatorsEnabled
+import me.akshitbansal.edgepad.paneTitle
 
 /**
  * The pure arithmetic of [Carry], free of Android types so a JVM test can run it. Lengths are in pixels.
@@ -192,13 +195,13 @@ object Carry {
         cancel()
         if (outgoing === incoming) return
         // TalkBack announces a pane by its title when it appears: the screen's own heading, as setContentView did.
-        if (incoming.accessibilityPaneTitle == null) incoming.accessibilityPaneTitle = heading(incoming)
+        if (incoming.paneTitle == null) incoming.paneTitle = heading(incoming)
         (incoming.parent as? ViewGroup)?.removeView(incoming)
         val animate =
             outgoing != null &&
                 host.width > 0 &&
                 host.height > 0 &&
-                ValueAnimator.areAnimatorsEnabled()
+                animatorsEnabled()
         if (!animate) {
             outgoing?.let(host::removeView)
             host.addView(incoming)
@@ -240,7 +243,7 @@ object Carry {
         window: Window,
         owner: View,
     ) {
-        if (!ValueAnimator.areAnimatorsEnabled()) return
+        if (!animatorsEnabled()) return
         val decor = window.decorView
         decor.alpha = 0f
         decor.viewTreeObserver.addOnPreDrawListener(
@@ -321,7 +324,7 @@ object Carry {
     /** The first visible heading in [view]'s tree, or null when it has none (an immersive surface). */
     private fun heading(view: View): CharSequence? {
         if (view.visibility != View.VISIBLE) return null
-        if (view is TextView && view.isAccessibilityHeading && !view.text.isNullOrEmpty()) return view.text
+        if (view is TextView && view.a11yHeading && !view.text.isNullOrEmpty()) return view.text
         if (view !is ViewGroup) return null
         for (i in 0 until view.childCount) {
             heading(view.getChildAt(i))?.let { return it }

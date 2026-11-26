@@ -8,6 +8,7 @@ import android.view.WindowInsets
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import me.akshitbansal.edgepad.Space
+import me.akshitbansal.edgepad.barsAndCutout
 
 /** The widest a sheet's card grows, on a tablet or sideways. */
 private const val MAX_WIDTH_DP = 360f
@@ -37,7 +38,7 @@ abstract class ListSheet(
     fun show(owner: View) {
         dismiss()
         val bars =
-            owner.rootWindowInsets?.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
+            owner.rootWindowInsets?.barsAndCutout()
         val width =
             minOf(
                 owner.width - (bars?.left ?: 0) - (bars?.right ?: 0) - 2 * ui.dp(Space.PAGE),

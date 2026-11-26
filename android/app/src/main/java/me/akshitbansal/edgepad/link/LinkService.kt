@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.content.pm.ServiceInfo
 import android.graphics.drawable.Icon
 import android.os.IBinder
@@ -15,6 +16,8 @@ import me.akshitbansal.edgepad.MainActivity
 import me.akshitbansal.edgepad.R
 import me.akshitbansal.edgepad.protocol.ActionId
 import me.akshitbansal.edgepad.protocol.Frame
+import me.akshitbansal.edgepad.channel
+import me.akshitbansal.edgepad.notificationBuilder
 
 private const val DISCONNECT_ACTION = "me.akshitbansal.edgepad.DISCONNECT"
 
@@ -61,7 +64,11 @@ class LinkService : Service() {
                 intent.getBooleanExtra(EXTRA_RECONNECTING, false),
                 intent.getBooleanExtra(EXTRA_SHARING, false),
             )
-        startForeground(NOTICE_ID, build(this, notice), ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(NOTICE_ID, build(this, notice), ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)
+        } else {
+            startForeground(NOTICE_ID, build(this, notice))
+        }
         return START_NOT_STICKY
     }
 
@@ -89,13 +96,14 @@ class LinkService : Service() {
                 return true
             }
             return try {
-                context.startForegroundService(
+                val start =
                     Intent(context, LinkService::class.java)
                         .putExtra(EXTRA_NAME, notice.name)
                         .putExtra(EXTRA_OTHERS, notice.others)
                         .putExtra(EXTRA_RECONNECTING, notice.reconnecting)
-                        .putExtra(EXTRA_SHARING, notice.sharing),
-                )
+                        .putExtra(EXTRA_SHARING, notice.sharing)
+                // startForegroundService is API 26; before it a plain start may still call startForeground.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) context.startForegroundService(start) else context.startService(start)
                 true
             } catch (e: RuntimeException) {
                 Log.w("Edgepad", "The link service was not allowed to start", e)
@@ -113,9 +121,7 @@ class LinkService : Service() {
         ): Notification {
             // Low importance: no sound and no peek, because this is a status and never news.
             val name = context.getString(R.string.link_channel)
-            val channel = NotificationChannel(CHANNEL, name, NotificationManager.IMPORTANCE_LOW)
-            channel.setShowBadge(false)
-            context.getSystemService(NotificationManager::class.java)?.createNotificationChannel(channel)
+            context.getSystemService(NotificationManager::class.java)?.channel(CHANNEL, name, NotificationManager.IMPORTANCE_LOW, showBadge = false)
             val title =
                 when {
                     notice.reconnecting -> {
@@ -168,8 +174,7 @@ class LinkService : Service() {
                     },
                 )
             val builder =
-                Notification
-                    .Builder(context, CHANNEL)
+                notificationBuilder(context, CHANNEL)
                     .setSmallIcon(R.drawable.ic_laptop)
                     .setContentTitle(title)
                     .setContentText(text)

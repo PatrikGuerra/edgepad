@@ -10,6 +10,7 @@ import me.akshitbansal.edgepad.Space
 import me.akshitbansal.edgepad.surface.Perimeter
 import me.akshitbansal.edgepad.surface.Shapes
 import kotlin.math.roundToInt
+import me.akshitbansal.edgepad.stateDesc
 
 /**
  * The surface's own settings, behind its gear and, as the same rows, under Surface on the app's Settings page: corners,
@@ -119,7 +120,7 @@ object SurfaceSettingsScreen {
         tune(settings.airMouse && gyroscope != null)
         if (gyroscope == null) {
             ui.enable(air, false)
-            air.stateDescription = ui.string(R.string.air_no_sensor)
+            air.stateDesc = ui.string(R.string.air_no_sensor)
         } else {
             air.setOnCheckedChangeListener { _, on ->
                 settings.airMouse = on

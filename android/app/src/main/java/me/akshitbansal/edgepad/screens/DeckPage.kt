@@ -10,6 +10,8 @@ import android.widget.LinearLayout
 import me.akshitbansal.edgepad.R
 import me.akshitbansal.edgepad.Settings
 import me.akshitbansal.edgepad.Space
+import me.akshitbansal.edgepad.barsAndCutout
+import me.akshitbansal.edgepad.stateDesc
 
 /**
  * A page that is a [Deck] under a nav bar, with everything the macro grid and the Controls grid share:
@@ -232,8 +234,8 @@ class DeckPage(
         // The rebuilt grid took the screen reader's place with it, and taking its focus back is not the app's
         // to do. It is told where the tile went instead, through the bar that outlives every rebuild. Cleared
         // first, so the same place twice running is still a change, and is read out again.
-        bar.stateDescription = null
-        bar.stateDescription = ui.string(R.string.macros_moved, to + 1, shown.size)
+        bar.stateDesc = null
+        bar.stateDesc = ui.string(R.string.macros_moved, to + 1, shown.size)
     }
 
     /**
@@ -242,7 +244,7 @@ class DeckPage(
      */
     private fun measureRoom(): Pair<Int, Int>? {
         val insets = view.rootWindowInsets ?: return null
-        val bars = insets.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
+        val bars = insets.barsAndCutout()
         val across = view.width - bars.left - bars.right - 2 * ui.dp(Space.PAGE)
         val down = view.height - bars.top - bars.bottom - bar.height - ui.dp(Space.XL)
         return if (across > 0 && down > 0) across to down else null

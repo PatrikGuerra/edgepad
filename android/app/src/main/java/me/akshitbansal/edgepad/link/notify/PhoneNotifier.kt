@@ -8,6 +8,8 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import me.akshitbansal.edgepad.R
+import me.akshitbansal.edgepad.channel
+import me.akshitbansal.edgepad.notificationBuilder
 
 /** Posts one system notification for each laptop notification: never without permission, replacing by id. */
 class PhoneNotifier(
@@ -28,12 +30,9 @@ class PhoneNotifier(
         val notifications = context.getSystemService(NotificationManager::class.java) ?: return
         if (!notifications.areNotificationsEnabled()) return
         val name = context.getString(R.string.notify_channel)
-        notifications.createNotificationChannel(
-            NotificationChannel(CHANNEL, name, NotificationManager.IMPORTANCE_DEFAULT),
-        )
+        notifications.channel(CHANNEL, name, NotificationManager.IMPORTANCE_DEFAULT)
         val notice =
-            Notification
-                .Builder(context, CHANNEL)
+            notificationBuilder(context, CHANNEL)
                 .setSmallIcon(R.drawable.ic_laptop)
                 .setSubText(app)
                 .setContentTitle(title)

@@ -7,6 +7,7 @@ import android.graphics.Rect
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
+import android.os.Build
 import me.akshitbansal.edgepad.surface.Dial
 import me.akshitbansal.edgepad.surface.DialSlide
 import me.akshitbansal.edgepad.surface.Perimeter
@@ -100,7 +101,7 @@ class DialWindow(
         super.onSizeChanged(w, h, oldw, oldh)
         // Keeps Android's back gesture off the whole band; the one rectangle is reused.
         exclusion.set(0, 0, w, h)
-        systemGestureExclusionRects = exclusions
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) systemGestureExclusionRects = exclusions
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

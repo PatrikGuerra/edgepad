@@ -89,7 +89,7 @@ class ClipProvider : ContentProvider() {
         mode: String,
     ): ParcelFileDescriptor? {
         if (mode != "r" || !isClipPath(uri.pathSegments)) throw FileNotFoundException("Not a clip")
-        val file = ClipFile.file(requireContext(), uri.pathSegments[0])
+        val file = ClipFile.file(checkNotNull(context), uri.pathSegments[0])
         return ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
     }
 
@@ -104,7 +104,7 @@ class ClipProvider : ContentProvider() {
         if (!isClipPath(uri.pathSegments)) return null
         val all = arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE)
         val columns = projection?.filter { it in all }?.toTypedArray() ?: all
-        val size = ClipFile.file(requireContext(), uri.pathSegments[0]).length()
+        val size = ClipFile.file(checkNotNull(context), uri.pathSegments[0]).length()
         val row = columns.map { if (it == OpenableColumns.DISPLAY_NAME) ClipFile.DISPLAY_NAME else size }
         return MatrixCursor(columns).apply { addRow(row) }
     }

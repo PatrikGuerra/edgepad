@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <style name="Theme.Edgepad.Platform" parent="@android:style/Theme.DeviceDefault.DayNight">
+    <!-- The launch screen plays the logo pop (drawable{,-night}/splash_logo.xml); MainActivity holds the first draw that long. -->
+    <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_logo</item>
+    <item name="android:windowSplashScreenAnimationDuration">760</item>
+    <item name="android:windowSplashScreenBackground">@color/ic_launcher_background</item>
+  </style>
+</resources>

@@ -19,6 +19,7 @@ import me.akshitbansal.edgepad.protocol.SessionStateToken
 import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
 import java.util.Currency
+import me.akshitbansal.edgepad.a11yHeading
 
 /**
  * What the connected AI tools have used: one equal column per tool, side by side when the phone is sideways and one
@@ -125,7 +126,7 @@ class AiScreen(
         val locale = ui.context.resources.configuration.locales[0]
         val label = ui.secondary(ui.string(R.string.ai_sessions).uppercase(locale), SUB_SP)
         label.typeface = Type.bold
-        label.isAccessibilityHeading = true
+        label.a11yHeading = true
         label.setPadding(ui.dp(Space.XS), 0, 0, 0)
         column.addView(label, spaced(Space.M))
         val rows = s.sessions.filter { it.agent == tool.agent }
@@ -161,7 +162,7 @@ class AiScreen(
         val locale = ui.context.resources.configuration.locales[0]
         return ui.secondary(ui.string(words).uppercase(locale), SUB_SP).apply {
             typeface = Type.bold
-            isAccessibilityHeading = true
+            a11yHeading = true
         }
     }
 

@@ -22,6 +22,7 @@ import me.akshitbansal.edgepad.R
 import me.akshitbansal.edgepad.Space
 import me.akshitbansal.edgepad.Type
 import me.akshitbansal.edgepad.fitText
+import me.akshitbansal.edgepad.stateDesc
 
 /** The smallest side a picture is drawn at: under this a cell is too small to be showing a picture at all. */
 private const val ICON_MIN_DP = 16f
@@ -424,13 +425,13 @@ class Deck(
         closing.add(tag)
         val view = buttons[tag]
         view?.alpha = LAUNCH_ALPHA
-        view?.stateDescription = ui.string(R.string.macro_closing)
+        view?.stateDesc = ui.string(R.string.macro_closing)
         holder.postDelayed(
             {
                 closing.remove(tag)
                 val now = tiles.firstOrNull { it.tag == tag } ?: return@postDelayed
                 view?.alpha = if (now.note == null) 1f else DIMMED_ALPHA
-                view?.stateDescription = now.note
+                view?.stateDesc = now.note
             },
             CLOSE_WAIT_MS,
         )
@@ -453,14 +454,14 @@ class Deck(
         if (!launching.add(tile.tag)) return
         view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
         view.alpha = LAUNCH_ALPHA
-        view.stateDescription = ui.string(R.string.macro_opening)
+        view.stateDesc = ui.string(R.string.macro_opening)
         onTap(tile)
         holder.postDelayed(
             {
                 launching.remove(tile.tag)
                 val now = tiles.firstOrNull { it.tag == tile.tag } ?: return@postDelayed
                 view.alpha = if (now.note == null) 1f else DIMMED_ALPHA
-                view.stateDescription = now.note
+                view.stateDesc = now.note
             },
             LAUNCH_WAIT_MS,
         )
@@ -489,7 +490,7 @@ class Deck(
             // Spoken as the laptop spells it, and named the same way when the label is not drawn at all.
             contentDescription = ui.string(tile.spoken, tile.label)
             alpha = if (tile.note == null) 1f else DIMMED_ALPHA
-            stateDescription = tile.note
+            stateDesc = tile.note
             buttons[tile.tag] = this
             dress(this, tile, grid)
         }

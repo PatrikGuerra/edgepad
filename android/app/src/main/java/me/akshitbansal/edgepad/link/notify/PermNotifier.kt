@@ -12,6 +12,8 @@ import android.os.Build
 import me.akshitbansal.edgepad.MainActivity
 import me.akshitbansal.edgepad.R
 import me.akshitbansal.edgepad.link.PermAsk
+import me.akshitbansal.edgepad.channel
+import me.akshitbansal.edgepad.notificationBuilder
 
 /**
  * Says an AI agent waits for an approval while Edgepad is not on screen. It carries no laptop text at all, and the
@@ -55,9 +57,7 @@ class PermNotifier(
 
     private fun build(): Notification {
         val notifications = context.getSystemService(NotificationManager::class.java)
-        notifications?.createNotificationChannel(
-            NotificationChannel(CHANNEL, context.getString(R.string.perm_channel), NotificationManager.IMPORTANCE_HIGH),
-        )
+        notifications?.channel(CHANNEL, context.getString(R.string.perm_channel), NotificationManager.IMPORTANCE_HIGH)
         val title = context.getString(R.string.perm_notif)
         val open =
             PendingIntent.getActivity(
@@ -67,13 +67,11 @@ class PermNotifier(
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             )
         val lockScreen =
-            Notification
-                .Builder(context, CHANNEL)
+            notificationBuilder(context, CHANNEL)
                 .setSmallIcon(R.drawable.ic_laptop)
                 .setContentTitle(title)
                 .build()
-        return Notification
-            .Builder(context, CHANNEL)
+        return notificationBuilder(context, CHANNEL)
             .setSmallIcon(R.drawable.ic_laptop)
             .setContentTitle(title)
             .setCategory(Notification.CATEGORY_REMINDER)

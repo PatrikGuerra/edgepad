@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Paint
 import android.graphics.Typeface
+import android.os.Build
 import android.text.TextPaint
 import android.util.DisplayMetrics
 import android.util.TypedValue
@@ -80,14 +81,16 @@ object Type {
 
     fun load(context: Context) {
         // Loaded on every start rather than once: a language change recreates the activity but keeps the process.
-        if (context.resources.getBoolean(R.bool.lato_covers)) {
+        // Resources.getFont is API 26; before it the system font stands in for Lato.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && context.resources.getBoolean(R.bool.lato_covers)) {
             face = context.resources.getFont(R.font.lato_regular)
             bold = context.resources.getFont(R.font.lato_bold)
             black = context.resources.getFont(R.font.lato_black)
         } else {
             face = Typeface.DEFAULT
             bold = Typeface.DEFAULT_BOLD
-            black = Typeface.create(Typeface.DEFAULT, BLACK_WEIGHT, false)
+            black =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) Typeface.create(Typeface.DEFAULT, BLACK_WEIGHT, false) else Typeface.DEFAULT_BOLD
         }
     }
 

@@ -28,6 +28,8 @@ import me.akshitbansal.edgepad.gamepad.layoutLabels
 import me.akshitbansal.edgepad.protocol.PadButton
 import kotlin.math.abs
 import kotlin.math.roundToInt
+import me.akshitbansal.edgepad.a11yHeading
+import me.akshitbansal.edgepad.noAutofill
 
 /**
  * Builds the pad the player uses, on a full-size canvas with a snapping grid like [MediaLayoutScreen]'s
@@ -171,7 +173,7 @@ object GamepadLayoutScreen {
             val section = ui.string(R.string.gamepad_layout_section)
             addView(
                 ui.text(section, Type.SMALL, ui.palette.dim, face = Type.bold).apply {
-                    isAccessibilityHeading = true
+                    a11yHeading = true
                     setPadding(0, ui.dp(Space.M), 0, ui.dp(Space.XS))
                 },
             )
@@ -676,7 +678,7 @@ object GamepadLayoutScreen {
                     // A layout's name is neither a credential nor an address, so nothing an autofill
                     // service holds could ever fill it and offering it would only put a menu over a
                     // field ten characters wide.
-                    importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO
+                    noAutofill()
                     val pad = (Space.L * density).toInt()
                     setPadding(pad, pad, pad, pad)
                 }

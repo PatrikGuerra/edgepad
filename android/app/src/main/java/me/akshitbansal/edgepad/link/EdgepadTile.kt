@@ -35,7 +35,7 @@ class EdgepadTile : TileService() {
         val tile = qsTile ?: return
         val model = TileModel.of(LinkHooks.tileStatus?.invoke())
         tile.state = if (model.active) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
-        tile.subtitle = model.name ?: getString(R.string.tile_subtitle_off)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) tile.subtitle = model.name ?: getString(R.string.tile_subtitle_off)
         tile.updateTile()
     }
 

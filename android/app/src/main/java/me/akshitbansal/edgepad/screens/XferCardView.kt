@@ -17,6 +17,7 @@ import me.akshitbansal.edgepad.link.xfer.XferPhase
 import me.akshitbansal.edgepad.link.xfer.XferSnapshot
 import me.akshitbansal.edgepad.link.xfer.middleTruncated
 import java.util.Locale
+import me.akshitbansal.edgepad.paneTitle
 
 /** What the card's title says, from the snapshot alone. */
 enum class CardTitle { RUNNING_SEND, RUNNING_RECEIVE, DONE_ALL, DONE_SOME, FAILED_ONE, FAILED_MANY }
@@ -144,7 +145,7 @@ class XferCardView(
         background = ui.rounded(p.popover, Space.CARD_RADIUS)
         elevation = ui.dp(ELEVATION_DP).toFloat()
         setPadding(ui.dp(PAD_START_DP), ui.dp(Space.M), ui.dp(Space.XS), ui.dp(Space.M))
-        accessibilityPaneTitle = ui.string(R.string.xfer_card_a11y)
+        paneTitle = ui.string(R.string.xfer_card_a11y)
         addView(icon, LayoutParams(ui.dp(ICON_DP), ui.dp(ICON_DP)))
         val words =
             LinearLayout(ui.context).apply {

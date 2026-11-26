@@ -3,6 +3,7 @@ package me.akshitbansal.edgepad.link
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
@@ -24,6 +25,9 @@ class GalleryStore(
         name: String,
         type: FileType,
     ): FileInbox.Pending? {
+        // shortcut: no captures to the gallery before Android 10 (RELATIVE_PATH and IS_PENDING are API 29); upgrade with
+        // a WRITE_EXTERNAL_STORAGE path if an older phone needs them.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return null
         val (collection, folder) =
             if (type.video) {
                 MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY) to MOVIES

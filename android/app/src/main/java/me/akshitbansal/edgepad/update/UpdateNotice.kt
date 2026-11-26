@@ -11,6 +11,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import me.akshitbansal.edgepad.MainActivity
 import me.akshitbansal.edgepad.R
+import me.akshitbansal.edgepad.channel
+import me.akshitbansal.edgepad.notificationBuilder
 
 /** The system notification for an available update: at most one per version, and never without permission. */
 object UpdateNotice {
@@ -34,9 +36,7 @@ object UpdateNotice {
             return false
         }
         val name = context.getString(R.string.updates_title)
-        notifications.createNotificationChannel(
-            NotificationChannel(CHANNEL, name, NotificationManager.IMPORTANCE_DEFAULT),
-        )
+        notifications.channel(CHANNEL, name, NotificationManager.IMPORTANCE_DEFAULT)
         val open =
             PendingIntent.getActivity(
                 context,
@@ -45,8 +45,7 @@ object UpdateNotice {
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             )
         val notice =
-            Notification
-                .Builder(context, CHANNEL)
+            notificationBuilder(context, CHANNEL)
                 .setSmallIcon(R.drawable.ic_laptop)
                 .setContentTitle(name)
                 .setContentText(context.getString(R.string.updates_notify_text, version))

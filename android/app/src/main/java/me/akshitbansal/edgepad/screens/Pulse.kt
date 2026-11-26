@@ -6,6 +6,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.view.View
 import kotlin.math.roundToInt
+import me.akshitbansal.edgepad.animatorsEnabled
 
 /**
  * The status dot beside a laptop that is connected or being connected to, with a ring that widens and fades
@@ -50,7 +51,7 @@ class Pulse(
     }
 
     private fun update() {
-        if (!pulsing || !isAttachedToWindow || !ValueAnimator.areAnimatorsEnabled()) {
+        if (!pulsing || !isAttachedToWindow || !animatorsEnabled()) {
             stop()
             invalidate()
             return

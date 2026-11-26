@@ -15,6 +15,8 @@ import me.akshitbansal.edgepad.R
 import me.akshitbansal.edgepad.Settings
 import me.akshitbansal.edgepad.Space
 import me.akshitbansal.edgepad.Type
+import me.akshitbansal.edgepad.a11yHeading
+import me.akshitbansal.edgepad.stateDesc
 
 /**
  * What Edgepad is and how to use it, in six pages, the last of them how to connect the laptop. On the first run it
@@ -299,7 +301,7 @@ object GuideScreen {
         insetDp: Float,
     ): View =
         ui.text(ui.string(page.title), Type.TITLE, ui.palette.ink, Type.TRACKING_TIGHT, Type.black).apply {
-            isAccessibilityHeading = true
+            a11yHeading = true
             setLineSpacing(0f, TITLE_LEADING)
             setPadding(ui.dp(insetDp), 0, ui.dp(insetDp), 0)
         }
@@ -365,7 +367,7 @@ object GuideScreen {
                 val target =
                     FrameLayout(ui.context).apply {
                         contentDescription = ui.string(R.string.guide_step_description, i + 1, pages.size)
-                        if (current) stateDescription = ui.string(R.string.chosen)
+                        if (current) stateDesc = ui.string(R.string.chosen)
                         val dot =
                             View(ui.context).apply {
                                 background =

@@ -17,6 +17,8 @@ import me.akshitbansal.edgepad.Space
 import me.akshitbansal.edgepad.Type
 import me.akshitbansal.edgepad.link.AppCatalogState
 import me.akshitbansal.edgepad.link.LaptopState
+import me.akshitbansal.edgepad.noAutofill
+import me.akshitbansal.edgepad.stateDesc
 
 /**
  * The apps the laptop listed, to pick one as a macro: a search field over a row for each app, its icon beside its name.
@@ -173,7 +175,7 @@ class AppListScreen(
                 } else if (full) {
                     alpha = FULL_ALPHA
                     contentDescription = app.name
-                    stateDescription = ui.string(R.string.apps_row_full)
+                    stateDesc = ui.string(R.string.apps_row_full)
                 } else {
                     ui.tappable(this) { confirm(app) }
                 }
@@ -207,7 +209,7 @@ class AppListScreen(
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
             imeOptions = EditorInfo.IME_ACTION_DONE
             hint = ui.string(R.string.apps_search_hint)
-            importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO
+            noAutofill()
             background = null
             typeface = Type.face
             setTextSize(TypedValue.COMPLEX_UNIT_SP, Type.BODY)

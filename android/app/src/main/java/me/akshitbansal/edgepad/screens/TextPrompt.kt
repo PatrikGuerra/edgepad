@@ -10,6 +10,7 @@ import me.akshitbansal.edgepad.R
 import me.akshitbansal.edgepad.Space
 import me.akshitbansal.edgepad.protocol.Frame
 import me.akshitbansal.edgepad.protocol.TextKind
+import me.akshitbansal.edgepad.noAutofill
 
 /**
  * AND-A-9: the phone's own keyboard, dictation and paste, typed on the laptop as one TEXT frame per 255 bytes.
@@ -23,7 +24,7 @@ fun askText(
     val field =
         EditText(context).apply {
             hint = context.getString(R.string.keyboard_type_text)
-            importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO
+            noAutofill()
             val pad = (Space.L * resources.displayMetrics.density).toInt()
             setPadding(pad, pad, pad, pad)
             // ANDU-13: a half-typed text comes back after a rotation closed the box, which presses neither button.

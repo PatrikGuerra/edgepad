@@ -22,6 +22,8 @@ import me.akshitbansal.edgepad.protocol.Frame
 import me.akshitbansal.edgepad.protocol.PenColor
 import me.akshitbansal.edgepad.surface.PenTool
 import me.akshitbansal.edgepad.surface.Strokes
+import me.akshitbansal.edgepad.stateDesc
+import me.akshitbansal.edgepad.tooltip
 
 /**
  * Drawing on the laptop's screen from the phone: the pen pad, the six tools, the eight colours and a custom one,
@@ -210,7 +212,7 @@ class AnnotateScreen(
         val chevron = if (on) R.drawable.ic_chevron_down else R.drawable.ic_chevron_up
         handleChevron.setImageDrawable(ui.context.getDrawable(chevron)?.mutate())
         val state = if (on) R.string.annotate_menu_expanded else R.string.annotate_menu_collapsed
-        handle.stateDescription = ui.string(state)
+        handle.stateDesc = ui.string(state)
         paintHandle()
     }
 
@@ -234,7 +236,7 @@ class AnnotateScreen(
             layoutParams = LinearLayout.LayoutParams(ui.dp(Space.TOUCH), ui.dp(Space.TOUCH))
             if (label != null) {
                 contentDescription = label
-                tooltipText = label
+                tooltip = label
             }
             if (onTap != null) ui.tappable(this, Space.CARD_RADIUS, onTap)
         }
@@ -371,20 +373,20 @@ class AnnotateScreen(
         for ((tool, button) in tools) {
             val on = tool == strokes.tool
             mark(button, on)
-            button.stateDescription = if (on) selected else null
+            button.stateDesc = if (on) selected else null
             button.visibility = if (strokes.signing && tool != PenTool.PEN) View.GONE else View.VISIBLE
         }
         mark(signButton, strokes.signing)
-        signButton.stateDescription = if (strokes.signing) selected else null
+        signButton.stateDesc = if (strokes.signing) selected else null
         // A picked colour that is one of the eight rings that swatch: the laptop draws the same either way.
         val stock = PenColor.entries.indexOfFirst { it.rgb == strokes.rgb }
         swatches.forEachIndexed { index, swatch ->
             val on = index == stock
             swatch.background = disc(PenColor.entries[index].rgb, on)
-            swatch.stateDescription = if (on) selected else null
+            swatch.stateDesc = if (on) selected else null
         }
         customSwatch.background = disc(strokes.rgb.takeIf { stock < 0 }, stock < 0)
-        customSwatch.stateDescription = if (stock < 0) selected else null
+        customSwatch.stateDesc = if (stock < 0) selected else null
         paintHandle()
     }
 

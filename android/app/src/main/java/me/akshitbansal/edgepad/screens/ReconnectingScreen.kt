@@ -12,6 +12,8 @@ import me.akshitbansal.edgepad.R
 import me.akshitbansal.edgepad.Space
 import me.akshitbansal.edgepad.Type
 import me.akshitbansal.edgepad.surface.Clock
+import me.akshitbansal.edgepad.animatorsEnabled
+import me.akshitbansal.edgepad.paneTitle
 
 /**
  * The link dropped on its own. Says so, counts the attempts to get it back, and offers the two ways out.
@@ -97,7 +99,7 @@ class ReconnectingScreen(
         }
 
     init {
-        view.accessibilityPaneTitle = ui.string(R.string.lost_title)
+        view.paneTitle = ui.string(R.string.lost_title)
         view.addOnAttachStateChangeListener(
             object : View.OnAttachStateChangeListener {
                 override fun onViewAttachedToWindow(v: View) = updateBlink()
@@ -138,7 +140,7 @@ class ReconnectingScreen(
             return
         }
         // With animations removed in system settings, the dot simply stays lit.
-        if (blink != null || !ValueAnimator.areAnimatorsEnabled()) return
+        if (blink != null || !animatorsEnabled()) return
         blink =
             ValueAnimator.ofFloat(0f, 1f).apply {
                 duration = BLINK_MS

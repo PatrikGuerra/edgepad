@@ -24,6 +24,8 @@ import me.akshitbansal.edgepad.Type
 import me.akshitbansal.edgepad.protocol.ActionId
 import me.akshitbansal.edgepad.protocol.DeviceOs
 import me.akshitbansal.edgepad.protocol.Frame
+import me.akshitbansal.edgepad.nodeInfo
+import me.akshitbansal.edgepad.stateDesc
 
 private const val CODE_SPACE = 0x20
 private const val CODE_LEFT = 0x25
@@ -419,20 +421,20 @@ object KeyboardScreen {
 
             override fun createAccessibilityNodeInfo(virtualViewId: Int): AccessibilityNodeInfo? {
                 if (virtualViewId == AccessibilityNodeProvider.HOST_VIEW_ID) {
-                    val host = AccessibilityNodeInfo(this@KeyboardView)
+                    val host = nodeInfo(this@KeyboardView)
                     onInitializeAccessibilityNodeInfo(host)
                     for (i in caps.indices) host.addChild(this@KeyboardView, i)
                     return host
                 }
                 if (virtualViewId !in caps.indices) return null
-                val key = AccessibilityNodeInfo(this@KeyboardView, virtualViewId)
+                val key = nodeInfo(this@KeyboardView, virtualViewId)
                 key.setParent(this@KeyboardView)
                 key.className = Button::class.java.name
                 key.contentDescription = legends[virtualViewId]
                 key.isClickable = true
                 key.addAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_CLICK)
                 if (pressCount[virtualViewId] > 0 || modifiers.isActive(modifierCodes[virtualViewId])) {
-                    key.stateDescription = context.getString(R.string.keyboard_key_on)
+                    key.stateDesc = context.getString(R.string.keyboard_key_on)
                 }
                 getLocationOnScreen(origin)
                 val rect = rects[virtualViewId]

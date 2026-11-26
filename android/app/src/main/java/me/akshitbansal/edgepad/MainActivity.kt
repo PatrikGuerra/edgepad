@@ -1669,12 +1669,14 @@ class MainActivity :
         syncPerm()
         // The bars are see-through over the page, whose own background is the ground, so they take its colour.
         // Left to the default, three-button navigation would lay a translucent scrim over the ground instead.
-        window.isNavigationBarContrastEnforced = false
-        window.insetsController?.let { bars ->
-            val light =
-                WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or
-                    WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
-            bars.setSystemBarsAppearance(if (ui.palette.dark) 0 else light, light)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) window.isNavigationBarContrastEnforced = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.insetsController?.let { bars ->
+                val light =
+                    WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or
+                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+                bars.setSystemBarsAppearance(if (ui.palette.dark) 0 else light, light)
+            }
         }
         // Every screen hides the bars; an edge swipe shows them for a moment (see hideBars).
         window.fillCutout()
@@ -2812,7 +2814,7 @@ class MainActivity :
                 setSingleLine()
                 inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI
                 hint = getString(R.string.add_by_address_hint)
-                importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO
+                noAutofill()
                 val pad = ui.dp(Space.L)
                 setPadding(pad, pad, pad, pad)
             }

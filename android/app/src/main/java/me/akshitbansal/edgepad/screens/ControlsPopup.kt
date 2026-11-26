@@ -21,6 +21,10 @@ import me.akshitbansal.edgepad.Type
 import me.akshitbansal.edgepad.link.GitHost
 import me.akshitbansal.edgepad.protocol.Feature
 import me.akshitbansal.edgepad.protocol.UnavailableReason
+import me.akshitbansal.edgepad.a11yHeading
+import me.akshitbansal.edgepad.animatorsEnabled
+import me.akshitbansal.edgepad.barsAndCutout
+import me.akshitbansal.edgepad.tooltip
 
 /** Which deck this is, to [Settings]: the order is kept per deck. It is the id the Controls screen used. */
 private const val DECK = "controls"
@@ -147,7 +151,7 @@ class ControlsPopup(
     /** The popup's heading, at the start of the header row. */
     private val heading =
         ui.text(ui.string(R.string.controls_title), HEADING_SP, ui.palette.ink, face = Type.bold).apply {
-            isAccessibilityHeading = true
+            a11yHeading = true
         }
 
     /**
@@ -190,7 +194,7 @@ class ControlsPopup(
     ) {
         dismiss()
         val insets = owner.rootWindowInsets
-        val bars = insets?.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
+        val bars = insets?.barsAndCutout()
         val left = bars?.left ?: 0
         val right = bars?.right ?: 0
         val barTop = bars?.top ?: 0
@@ -307,7 +311,7 @@ class ControlsPopup(
         val closing = dialog ?: return
         dialog = null
         val window = closing.window
-        if (window == null || !closing.isShowing || !ValueAnimator.areAnimatorsEnabled()) {
+        if (window == null || !closing.isShowing || !animatorsEnabled()) {
             closing.dismiss()
             return
         }
@@ -357,7 +361,7 @@ class ControlsPopup(
         editButton.imageTintList = ColorStateList.valueOf(if (editing) ui.palette.accent else ui.palette.ink)
         val label = ui.string(if (editing) R.string.editor_done else R.string.controls_edit)
         editButton.contentDescription = label
-        editButton.tooltipText = label
+        editButton.tooltip = label
         // The one place a note is shown: how edit mode works while editing, or how to bring hidden tiles back.
         val note =
             when {

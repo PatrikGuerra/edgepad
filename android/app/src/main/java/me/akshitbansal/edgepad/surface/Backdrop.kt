@@ -2,6 +2,7 @@ package me.akshitbansal.edgepad.surface
 
 import android.content.res.Resources
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.ImageDecoder
 import android.graphics.LinearGradient
@@ -9,6 +10,7 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Shader
+import android.os.Build
 import android.util.Log
 import android.view.View
 import me.akshitbansal.edgepad.Settings
@@ -275,11 +277,19 @@ object BackgroundImage {
             val screen = Resources.getSystem().displayMetrics
             val target = maxOf(screen.widthPixels, screen.heightPixels)
             val bitmap =
-                ImageDecoder.decodeBitmap(ImageDecoder.createSource(file)) { decoder, info, _ ->
-                    // Software, because the brightness is read back pixel by pixel, which a hardware bitmap
-                    // refuses; the size is what keeps that affordable.
-                    decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
-                    decoder.setTargetSampleSize(sampleSize(maxOf(info.size.width, info.size.height), target))
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                    // No ImageDecoder before Android 9: BitmapFactory, sampled the same way from the header.
+                    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                    BitmapFactory.decodeFile(file.path, bounds)
+                    val options = BitmapFactory.Options().apply { inSampleSize = sampleSize(maxOf(bounds.outWidth, bounds.outHeight), target) }
+                    BitmapFactory.decodeFile(file.path, options) ?: throw IOException("Not a picture this phone can decode")
+                } else {
+                    ImageDecoder.decodeBitmap(ImageDecoder.createSource(file)) { decoder, info, _ ->
+                        // Software, because the brightness is read back pixel by pixel, which a hardware bitmap
+                        // refuses; the size is what keeps that affordable.
+                        decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
+                        decoder.setTargetSampleSize(sampleSize(maxOf(info.size.width, info.size.height), target))
+                    }
                 }
             Decoded(bitmap, averageLuminance(bitmap) < HALF)
         } catch (e: IOException) {

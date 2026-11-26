@@ -11,6 +11,7 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.wifi.WifiInfo
 import android.os.BatteryManager
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
@@ -212,7 +213,7 @@ class PhoneStats(
                     update(snapshot.copy(net = PhoneNet(NetKind.NONE, NetBand.UNKNOWN, -1, SignalLevel.UNKNOWN, "")))
                 }
             }
-        cm.registerDefaultNetworkCallback(callback, handler)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) cm.registerDefaultNetworkCallback(callback, handler) else cm.registerDefaultNetworkCallback(callback)
         return AutoCloseable { cm.unregisterNetworkCallback(callback) }
     }
 
@@ -228,7 +229,7 @@ class PhoneStats(
                 else -> NetKind.OTHER
             }
         // Only link speed, frequency and RSSI come from WifiInfo: none needs Location, and getSSID is never called.
-        val wifi = caps.transportInfo as? WifiInfo
+        val wifi = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) caps.transportInfo as? WifiInfo else null
         val estimateMbps = caps.linkDownstreamBandwidthKbps.takeIf { it > 0 }?.div(KBPS_PER_MBPS) ?: -1
         return PhoneNet(
             kind,
@@ -240,6 +241,8 @@ class PhoneStats(
     }
 
     private fun watchThermal(): AutoCloseable {
+        // Thermal status is API 29; older Androids report none.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return AutoCloseable {}
         val pm = context.getSystemService(PowerManager::class.java)
         val listener =
             PowerManager.OnThermalStatusChangedListener {

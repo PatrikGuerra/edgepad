@@ -35,6 +35,12 @@ import me.akshitbansal.edgepad.Palette
 import me.akshitbansal.edgepad.R
 import me.akshitbansal.edgepad.Space
 import me.akshitbansal.edgepad.Type
+import me.akshitbansal.edgepad.a11yHeading
+import me.akshitbansal.edgepad.animatorsEnabled
+import me.akshitbansal.edgepad.barsAndCutout
+import me.akshitbansal.edgepad.imeBottom
+import me.akshitbansal.edgepad.stateDesc
+import me.akshitbansal.edgepad.tooltip
 
 private const val SECTION_TOP_DP = 24f
 private const val FOCUS_RING_DP = 2f
@@ -161,10 +167,10 @@ class Ui(
             }
         // Edge-to-edge is enforced from targetSdk 35: keep content clear of the system bars and the cutout.
         root.setOnApplyWindowInsetsListener { page, insets ->
-            val bars = insets.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
+            val bars = insets.barsAndCutout()
             // An open keyboard covers the bottom of the page unless the page makes room for it, as the bars' own
             // inset is already inside the keyboard's. Only a page with a text field ever sees one.
-            val bottom = maxOf(bars.bottom, insets.getInsets(WindowInsets.Type.ime()).bottom)
+            val bottom = maxOf(bars.bottom, insets.imeBottom())
             page.setPadding(bars.left, bars.top, bars.right, 0)
             if (pinned == null) {
                 column.setPadding(side, top, side, end + bottom)
@@ -179,7 +185,7 @@ class Ui(
     /** Keeps a full-screen view clear of the system bars and the display cutout, which edge-to-edge no longer does. */
     fun padToBars(view: View) {
         view.setOnApplyWindowInsetsListener { v, insets ->
-            val bars = insets.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
+            val bars = insets.barsAndCutout()
             v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
             insets
         }
@@ -222,7 +228,7 @@ class Ui(
             val drawn = onBack != null || lead != null
             val name =
                 text(title, Type.LABEL, palette.ink, face = Type.bold).apply {
-                    isAccessibilityHeading = true
+                    a11yHeading = true
                     maxLines = 1
                     ellipsize = TextUtils.TruncateAt.END
                     gravity = Gravity.CENTER
@@ -296,7 +302,7 @@ class Ui(
     ): Glyph =
         Glyph(context, shape, color).apply {
             contentDescription = label
-            tooltipText = label
+            tooltip = label
             layoutParams = LinearLayout.LayoutParams(dp(Space.TOUCH), dp(Space.TOUCH))
             tappable(this, Space.TOUCH / 2, onTap)
         }
@@ -586,14 +592,14 @@ class Ui(
                 val on = i == current
                 option.typeface = if (on) Type.bold else Type.face
                 option.isSelected = on
-                option.stateDescription = if (on) string(R.string.chosen) else null
+                option.stateDesc = if (on) string(R.string.chosen) else null
             }
             // The thumb starts at the start edge, so it slides towards the left in Arabic.
             val x = (current * width).toFloat() * if (rtl) -1 else 1
             // Slid only once the control has been seen somewhere. The first placement is the control
             // appearing, and a thumb sliding in from the left on every page open would read as the choice
             // having just changed when nothing has. Animations off in system settings means it never slides.
-            if (animate && shown && ValueAnimator.areAnimatorsEnabled()) {
+            if (animate && shown && animatorsEnabled()) {
                 fill
                     .animate()
                     .translationX(x)
@@ -711,7 +717,7 @@ class Ui(
     /** A small bold header over a card, in sentence case, lined up with the card's text. */
     fun section(value: CharSequence): TextView =
         text(value, Type.SMALL, palette.dim, face = Type.bold).apply {
-            isAccessibilityHeading = true
+            a11yHeading = true
             setPadding(dp(Space.CARD_PAD), dp(SECTION_TOP_DP), dp(Space.CARD_PAD), dp(Space.S))
         }
 
@@ -797,11 +803,11 @@ class Ui(
                 ruler(steps, progress) { step ->
                     val now = valueOf(step)
                     value.text = now
-                    track.stateDescription = now
+                    track.stateDesc = now
                     onChange(step)
                 }
             track.contentDescription = label
-            track.stateDescription = shown
+            track.stateDesc = shown
             addView(track)
         }
 
@@ -828,7 +834,7 @@ class Ui(
                     val chosen = i == current
                     checks[i].visibility = if (chosen) View.VISIBLE else View.INVISIBLE
                     row.isSelected = chosen
-                    row.stateDescription = if (chosen) string(R.string.chosen) else null
+                    row.stateDesc = if (chosen) string(R.string.chosen) else null
                 }
             }
             names.forEachIndexed { i, name ->
@@ -1048,6 +1054,15 @@ private class NavBar(
  * of its own and brings the bars back unless it hides them too, so every dialog goes through [openOver].
  */
 fun Window.hideBars() {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+        // Before Android 11: the older immersive-sticky flags do the same thing.
+        @Suppress("DEPRECATION")
+        decorView.systemUiVisibility =
+            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_FULLSCREEN or
+            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+        return
+    }
     // Through decorView, which builds the decor first: a dialog before show() has none yet, and
     // Window.insetsController then throws instead of returning null. The decor's controller holds
     // the request until the window is attached.
@@ -1064,10 +1079,12 @@ fun Window.hideBars() {
  */
 fun Window.fillCutout() {
     // Before Android 15 the decor still insets content by the cutout; edge-to-edge is only enforced from there on.
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
         @Suppress("DEPRECATION")
         setDecorFitsSystemWindows(false)
     }
+    // No cutouts before Android 9.
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return
     attributes =
         attributes.apply {
             layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
@@ -1140,7 +1157,7 @@ class Column(
     fun largeTitle(value: CharSequence): TextView =
         add(
             ui.text(value, Type.LARGE_TITLE, ui.palette.ink, Type.TRACKING_TIGHT, Type.black).apply {
-                isAccessibilityHeading = true
+                a11yHeading = true
                 setPaddingRelative(ui.dp(Space.XS), 0, 0, ui.dp(Space.S))
             },
         )

@@ -1,5 +1,6 @@
 package me.akshitbansal.edgepad.screens
 
+import android.os.Build
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.graphics.drawable.GradientDrawable
@@ -16,6 +17,9 @@ import me.akshitbansal.edgepad.R
 import me.akshitbansal.edgepad.Space
 import me.akshitbansal.edgepad.Type
 import me.akshitbansal.edgepad.protocol.Pin
+import me.akshitbansal.edgepad.a11yHeading
+import me.akshitbansal.edgepad.animatorsEnabled
+import me.akshitbansal.edgepad.paneTitle
 
 /**
  * The laptop's PIN, asked for during the handshake. Its own keypad on purpose: no input method sees the
@@ -56,7 +60,7 @@ class PinScreen(
             add(lock, height = ui.dp(LOCK_DP), width = ui.dp(LOCK_DP))
             headline(ui.string(R.string.pin_title), Type.TITLE, Space.M).apply {
                 gravity = Gravity.CENTER
-                isAccessibilityHeading = true
+                a11yHeading = true
             }
             body(ui.string(R.string.pin_body), Space.XS).gravity = Gravity.CENTER
             if (wrongAnswer) {
@@ -96,11 +100,11 @@ class PinScreen(
         }
 
     init {
-        view.accessibilityPaneTitle = ui.string(R.string.pin_title)
+        view.paneTitle = ui.string(R.string.pin_title)
         showDots()
         // A hardware keyboard types the PIN as well; the digits go nowhere but this entry, as with the keypad.
         view.isFocusableInTouchMode = true
-        view.defaultFocusHighlightEnabled = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) view.defaultFocusHighlightEnabled = false
         view.setOnKeyListener { _, code, event -> event.action == KeyEvent.ACTION_DOWN && typed(code) }
         view.post { view.requestFocus() }
         if (wrongAnswer) view.post { reject() }
@@ -109,7 +113,7 @@ class PinScreen(
     /** A wrong answer: the system's reject buzz, and the dots shake sideways once (not at all with animations off). */
     private fun reject() {
         view.performHapticFeedback(HapticFeedbackConstants.REJECT)
-        if (!ValueAnimator.areAnimatorsEnabled()) return
+        if (!animatorsEnabled()) return
         val reach = ui.dp(SHAKE_DP).toFloat()
         ObjectAnimator
             .ofFloat(row, View.TRANSLATION_X, 0f, -reach, reach, -reach, reach, 0f)

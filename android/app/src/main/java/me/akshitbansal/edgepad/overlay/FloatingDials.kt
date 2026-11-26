@@ -2,6 +2,7 @@ package me.akshitbansal.edgepad.overlay
 
 import android.content.Context
 import android.graphics.PixelFormat
+import android.graphics.Point
 import android.util.Log
 import android.view.Gravity
 import android.view.HapticFeedbackConstants
@@ -58,12 +59,33 @@ class FloatingDials(
 
     val isShown: Boolean get() = windows.isNotEmpty()
 
+    /** The whole screen in px; WindowManager.currentWindowMetrics is API 30. */
+    private fun screenSize(): Point {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val bounds = windowManager.currentWindowMetrics.bounds
+            return Point(bounds.width(), bounds.height())
+        }
+        return Point().also {
+            @Suppress("DEPRECATION")
+            windowManager.defaultDisplay.getRealSize(it)
+        }
+    }
+
+    /** TYPE_APPLICATION_OVERLAY is API 26; TYPE_PHONE is the older window drawn over other apps. */
+    private fun overlayType(): Int =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+        } else {
+            @Suppress("DEPRECATION")
+            WindowManager.LayoutParams.TYPE_PHONE
+        }
+
     /** Puts the windows up, or lays them out again when the dials or the screen changed since. */
     fun show() {
         if (!SystemSettings.canDrawOverlays(app)) return
-        val metrics = windowManager.currentWindowMetrics
-        val width = metrics.bounds.width()
-        val height = metrics.bounds.height()
+        val size = screenSize()
+        val width = size.x
+        val height = size.y
         val specs = specs()
         val fontScale = app.resources.configuration.fontScale
         val same = specs == shownSpecs && width == shownWidth && height == shownHeight && fontScale == shownScale
@@ -74,9 +96,11 @@ class FloatingDials(
         shownWidth = width
         shownHeight = height
         shownScale = fontScale
-        val insets = metrics.windowInsets
         var corner = 0
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) for (position in CORNER_POSITIONS) corner = maxOf(corner, insets.getRoundedCorner(position)?.radius ?: 0)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val insets = windowManager.currentWindowMetrics.windowInsets
+            for (position in CORNER_POSITIONS) corner = maxOf(corner, insets.getRoundedCorner(position)?.radius ?: 0)
+        }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) corner = ScreenCorner.legacyRadius(app, settings)
         val perimeter = Perimeter(width.toFloat(), height.toFloat(), RulerGeometry.bend(corner.toFloat(), density))
         val painter = RulerPainter(app.resources.displayMetrics, settings.dialLength, settings.dialHeight)
@@ -141,7 +165,7 @@ class FloatingDials(
                 .LayoutParams(
                     bounds.width,
                     bounds.height,
-                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                    overlayType(),
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                         WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                         WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
@@ -150,7 +174,9 @@ class FloatingDials(
                     gravity = Gravity.TOP or Gravity.START
                     x = bounds.left
                     y = bounds.top
-                    layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+                    }
                 }
         return try {
             windowManager.addView(window, params)

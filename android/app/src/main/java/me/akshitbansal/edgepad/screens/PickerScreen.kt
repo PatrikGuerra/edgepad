@@ -16,6 +16,7 @@ import me.akshitbansal.edgepad.link.LaptopLink
 import me.akshitbansal.edgepad.link.LaptopRow
 import me.akshitbansal.edgepad.link.RowStatus
 import me.akshitbansal.edgepad.link.Transport
+import me.akshitbansal.edgepad.a11yHeading
 
 /**
  * The laptops: paired over Bluetooth, found on the Wi-Fi, found over USB tethering, or added by address, one row each
@@ -251,7 +252,7 @@ class PickerScreen(
                         ui.palette.ink,
                         Type.TRACKING_TIGHT,
                         Type.black,
-                    ).apply { isAccessibilityHeading = true },
+                    ).apply { a11yHeading = true },
             )
         }
 

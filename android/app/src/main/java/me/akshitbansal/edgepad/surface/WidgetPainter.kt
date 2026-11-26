@@ -9,6 +9,7 @@ import android.graphics.Paint
 import android.graphics.RectF
 import android.graphics.RenderNode
 import android.graphics.Typeface
+import android.os.Build
 import android.text.TextPaint
 import android.text.TextUtils
 import android.text.format.DateFormat
@@ -117,7 +118,7 @@ class WidgetPainter(
 
     // The widgets' picture, recorded only when it changed ([dirty]), so a touch that redraws the surface replays one
     // node instead of laying out every line of text again.
-    private val node = RenderNode("widgets")
+    private val node = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) RenderNode("widgets") else null
     private var dirty = true
 
     // What [update] last read, so a call with nothing new returns before building any string.
@@ -325,7 +326,7 @@ class WidgetPainter(
         w: Float,
         h: Float,
     ) {
-        node.setPosition(0, 0, w.toInt(), h.toInt())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) node?.setPosition(0, 0, w.toInt(), h.toInt())
         dirty = true
         for (slot in slots) {
             val (bw, bh) = boxSize(slot.widget, w, h, density)
@@ -378,7 +379,8 @@ class WidgetPainter(
      * hardware accelerated (a software snapshot) cannot replay a node and is painted directly.
      */
     fun draw(canvas: Canvas) {
-        if (!canvas.isHardwareAccelerated) {
+        // RenderNode is API 29: before it every frame paints directly.
+        if (!canvas.isHardwareAccelerated || node == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             paint(canvas)
             return
         }

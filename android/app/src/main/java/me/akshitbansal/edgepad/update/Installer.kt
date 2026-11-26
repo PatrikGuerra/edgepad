@@ -16,6 +16,8 @@ import me.akshitbansal.edgepad.Settings
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URI
+import me.akshitbansal.edgepad.channel
+import me.akshitbansal.edgepad.notificationBuilder
 
 /**
  * Downloads a release's APK and hands it to the system to install over this app.
@@ -194,9 +196,7 @@ object Installer {
             val notifications = context.getSystemService(NotificationManager::class.java) ?: return
             if (!notifications.areNotificationsEnabled()) return
             val name = context.getString(R.string.updates_title)
-            notifications.createNotificationChannel(
-                NotificationChannel(CHANNEL, name, NotificationManager.IMPORTANCE_DEFAULT),
-            )
+            notifications.channel(CHANNEL, name, NotificationManager.IMPORTANCE_DEFAULT)
             val open =
                 PendingIntent.getActivity(
                     context,
@@ -205,8 +205,7 @@ object Installer {
                     PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
                 )
             val notice =
-                Notification
-                    .Builder(context, CHANNEL)
+                notificationBuilder(context, CHANNEL)
                     .setSmallIcon(R.drawable.ic_laptop)
                     .setContentTitle(name)
                     .setContentText(context.getString(R.string.updates_notice_text))

@@ -1,5 +1,6 @@
 package me.akshitbansal.edgepad.screens
 
+import android.os.Build
 import android.app.AlertDialog
 import android.graphics.Typeface
 import android.os.SystemClock
@@ -17,6 +18,7 @@ import me.akshitbansal.edgepad.link.PermAsk
 import me.akshitbansal.edgepad.link.PermQueue
 import me.akshitbansal.edgepad.link.allowEnabled
 import me.akshitbansal.edgepad.protocol.AgentToken
+import me.akshitbansal.edgepad.barsAndCutout
 
 private const val MAX_WIDTH_DP = 420f
 private const val SHORT_OWNER_DP = 360f
@@ -77,7 +79,7 @@ class PermissionSheet(
     ) {
         dismiss()
         val bars =
-            owner.rootWindowInsets?.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
+            owner.rootWindowInsets?.barsAndCutout()
         val width =
             minOf(
                 owner.width - (bars?.left ?: 0) - (bars?.right ?: 0) - 2 * ui.dp(Space.PAGE),
@@ -198,7 +200,7 @@ class PermissionSheet(
         LinearLayout(ui.context).apply {
             orientation = LinearLayout.HORIZONTAL
             layoutDirection = View.LAYOUT_DIRECTION_LTR
-            deny.isFocusedByDefault = true
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) deny.isFocusedByDefault = true
             deny.filterTouchesWhenObscured = true
             addView(deny, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
             if (allow != null) {

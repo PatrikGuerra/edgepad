@@ -44,6 +44,8 @@ import me.akshitbansal.edgepad.screens.askText
 import kotlin.math.abs
 import kotlin.math.hypot
 import kotlin.math.roundToInt
+import me.akshitbansal.edgepad.animatorsEnabled
+import me.akshitbansal.edgepad.stateDesc
 
 /**
  * The control surface: a ruler at each corner that holds a dial, the media pieces wherever the user put
@@ -219,7 +221,7 @@ class ControlSurface(
         dialsHidden = userHidden
         enterMode()
         cancelTouches(SystemClock.uptimeMillis())
-        if (ValueAnimator.areAnimatorsEnabled()) {
+        if (animatorsEnabled()) {
             chromeAlpha = 0f
             chromeFade.start()
         } else {
@@ -520,7 +522,7 @@ class ControlSurface(
             dialsHidden = true
             chromeAlpha = 0f
         }
-        stateDescription = modeLabel()
+        stateDesc = modeLabel()
         applyState()
         widgets.update(state)
         postDelayed({ invalidate() }, REPORT_WAIT_MS)
@@ -595,7 +597,8 @@ class ControlSurface(
         val topReach = (topButtons.maxOfOrNull { abs(it.side) } ?: 0f) * topButtonOffsetDp(w.toFloat(), h.toFloat())
         // The battery strip is never wider than the button row, so the row's keep-out zone covers it too.
         val stripRoom = BatteryStrip.roomDp(topReach)
-        topShift = strip.cutoutShift(w, insets?.displayCutout?.boundingRects.orEmpty(), dp(Space.XS), dp(stripRoom))
+        val cutouts = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) insets?.displayCutout?.boundingRects else null
+        topShift = strip.cutoutShift(w, cutouts.orEmpty(), dp(Space.XS), dp(stripRoom))
         layoutPieces(w.toFloat(), h.toFloat())
         widgets.layout(w.toFloat(), h.toFloat())
         strip.layout(w, topShift, dp(stripRoom))
@@ -709,7 +712,7 @@ class ControlSurface(
             val depth = depths[i].toInt()
             rect.inset(-depth, -depth)
         }
-        systemGestureExclusionRects = exclusions
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) systemGestureExclusionRects = exclusions
     }
 
     /**
@@ -1624,7 +1627,7 @@ class ControlSurface(
      * is exactly how a locked pad came to look identical to a working one.
      */
     private fun enterMode() {
-        stateDescription = modeLabel()
+        stateDesc = modeLabel()
         rebuildCaption()
     }
 

@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <!-- Light only before Android 10, which has no DayNight theme; values-v29 and values-v31 replace it. -->
+  <style name="Theme.Edgepad.Platform" parent="@android:style/Theme.DeviceDefault.Light" />
+
   <!-- The platform's own theme, following the system or the app's own light/dark choice; no library. -->
-  <style name="Theme.Edgepad" parent="@android:style/Theme.DeviceDefault.DayNight">
+  <style name="Theme.Edgepad" parent="Theme.Edgepad.Platform">
     <item name="android:windowActionBar">false</item>
     <item name="android:windowNoTitle">true</item>
     <!-- The panel colour from the first frame, so changing screens never flashes the platform's grey. -->
@@ -11,10 +14,6 @@
     <item name="android:navigationBarColor">@color/panel</item>
     <!-- AND-B-37: every AlertDialog built from this theme's context picks the dialog theme below. -->
     <item name="android:alertDialogTheme">@style/Theme.Edgepad.Dialog</item>
-    <!-- The launch screen plays the logo pop (drawable{,-night}/splash_logo.xml); MainActivity holds the first draw that long. -->
-    <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_logo</item>
-    <item name="android:windowSplashScreenAnimationDuration">760</item>
-    <item name="android:windowSplashScreenBackground">@color/ic_launcher_background</item>
   </style>
 
   <!-- AND-B-37: Edgepad's palette on the platform's alert dialog, light here and dark in values-night. The font is a layer of its own, in fonts.xml. -->

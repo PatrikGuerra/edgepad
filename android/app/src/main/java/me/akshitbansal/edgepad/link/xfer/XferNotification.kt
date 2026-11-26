@@ -10,6 +10,9 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.Icon
 import android.text.format.Formatter
 import me.akshitbansal.edgepad.R
+import me.akshitbansal.edgepad.channel
+import me.akshitbansal.edgepad.notificationBuilder
+import android.os.Build
 
 /** Lets a progress through at most once per percent: a notification is rebuilt 100 times a file, not per chunk. */
 internal class PercentGate {
@@ -145,17 +148,16 @@ class XferNotification(
     ) {
         // The end of a batch lets go of any hold.
         if (!ongoing) paused = false
-        if (context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) {
             return
         }
         val notifications = context.getSystemService(NotificationManager::class.java) ?: return
         if (!notifications.areNotificationsEnabled()) return
-        notifications.createNotificationChannel(
-            NotificationChannel(CHANNEL, context.getString(R.string.xfer_channel), NotificationManager.IMPORTANCE_LOW),
-        )
+        notifications.channel(CHANNEL, context.getString(R.string.xfer_channel), NotificationManager.IMPORTANCE_LOW)
         val builder =
-            Notification
-                .Builder(context, CHANNEL)
+            notificationBuilder(context, CHANNEL)
                 .setSmallIcon(R.drawable.ic_laptop)
                 .setContentTitle(title)
                 .setOnlyAlertOnce(true)

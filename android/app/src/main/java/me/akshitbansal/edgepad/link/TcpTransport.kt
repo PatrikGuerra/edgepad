@@ -1,5 +1,6 @@
 package me.akshitbansal.edgepad.link
 
+import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.system.ErrnoException
 import android.system.Os
@@ -175,6 +176,8 @@ class TcpTransport(
      */
     private companion object {
         fun shortenKeepAlive(s: Socket) {
+            // Os.setsockoptInt is public from API 26; older Androids keep the default timers.
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
             try {
                 // The Socket has no public descriptor; a dup of it shares the socket and its options.
                 ParcelFileDescriptor.fromSocket(s).use { pfd ->

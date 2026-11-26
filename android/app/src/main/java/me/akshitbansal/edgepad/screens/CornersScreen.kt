@@ -13,6 +13,7 @@ import me.akshitbansal.edgepad.Type
 import me.akshitbansal.edgepad.surface.CornerSlots
 import me.akshitbansal.edgepad.surface.DialKind
 import me.akshitbansal.edgepad.surface.Perimeter
+import me.akshitbansal.edgepad.stateDesc
 
 /**
  * What each corner of the surface holds: pick a corner, then pick its dial from the list beside or below it.
@@ -181,7 +182,7 @@ object CornersScreen {
         picked: Boolean,
     ) {
         row.view.isSelected = picked
-        row.view.stateDescription = if (picked) ui.string(R.string.chosen) else null
+        row.view.stateDesc = if (picked) ui.string(R.string.chosen) else null
         row.name.typeface = if (picked) Type.bold else Type.face
         row.value.setTextColor(if (picked) ui.palette.accent else ui.palette.dim)
         row.icon.background = icon(ui, split, corner, picked)

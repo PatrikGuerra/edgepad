@@ -18,6 +18,7 @@ import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.roundToInt
+import me.akshitbansal.edgepad.animatorsEnabled
 
 /**
  * One guide page's drawing, in a 300 by 130 frame fitted into a rounded card panel with a dot grid. The
@@ -95,7 +96,7 @@ class GuideArt(
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        if (!ValueAnimator.areAnimatorsEnabled()) return
+        if (!animatorsEnabled()) return
         animator =
             ValueAnimator.ofFloat(0f, 1f).apply {
                 duration = RUN_MS.toLong()

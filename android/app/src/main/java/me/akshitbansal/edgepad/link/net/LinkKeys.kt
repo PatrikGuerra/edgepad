@@ -1,5 +1,6 @@
 package me.akshitbansal.edgepad.link.net
 
+import android.util.Base64
 import android.content.Context
 import android.content.SharedPreferences
 import android.security.keystore.KeyGenParameterSpec
@@ -7,7 +8,6 @@ import android.security.keystore.KeyProperties
 import java.io.IOException
 import java.security.GeneralSecurityException
 import java.security.KeyStore
-import java.util.Base64
 import javax.crypto.AEADBadTagException
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -145,7 +145,7 @@ class LinkKeys(
             LinkKeys(context.getSharedPreferences(NAME, Context.MODE_PRIVATE), KeystoreWrapper())
 
         /** The preference that holds [laptopId]'s key. */
-        internal fun entry(laptopId: ByteArray): String = "pk." + Base64.getUrlEncoder().encodeToString(laptopId)
+        internal fun entry(laptopId: ByteArray): String = "pk." + Base64.encodeToString(laptopId, Base64.URL_SAFE or Base64.NO_WRAP)
 
         internal fun seal(
             wrapper: Wrapper,
@@ -164,7 +164,7 @@ class LinkKeys(
         ): ByteArray? {
             if (stored == null) return null
             return try {
-                wrapper.unwrap(Base64.getDecoder().decode(stored), laptopId)
+                wrapper.unwrap(Base64.decode(stored, Base64.DEFAULT), laptopId)
             } catch (e: GeneralSecurityException) {
                 null
             } catch (e: IllegalArgumentException) {
@@ -176,12 +176,12 @@ class LinkKeys(
         internal fun idOf(stored: String?): ByteArray? {
             if (stored == null) return null
             return try {
-                Base64.getDecoder().decode(stored).takeIf { it.size == LinkWire.ID_LENGTH }
+                Base64.decode(stored, Base64.DEFAULT).takeIf { it.size == LinkWire.ID_LENGTH }
             } catch (e: IllegalArgumentException) {
                 null
             }
         }
 
-        private fun encode(bytes: ByteArray): String = Base64.getEncoder().encodeToString(bytes)
+        private fun encode(bytes: ByteArray): String = Base64.encodeToString(bytes, Base64.NO_WRAP)
     }
 }

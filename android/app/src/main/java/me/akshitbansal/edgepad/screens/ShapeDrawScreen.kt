@@ -20,6 +20,7 @@ import me.akshitbansal.edgepad.surface.Shape
 import me.akshitbansal.edgepad.surface.ShapeTarget
 import me.akshitbansal.edgepad.surface.Shapes
 import me.akshitbansal.edgepad.surface.TrackpadRecognizer
+import me.akshitbansal.edgepad.stateDesc
 
 /**
  * Drawing one new shape, in two steps on one screen: a full-bleed canvas to draw the stroke on, then the
@@ -289,8 +290,8 @@ object ShapeDrawScreen {
         private fun refuse(reason: String) {
             message = reason
             // Cleared first, so the same refusal twice running is still a change, and is read out again.
-            stateDescription = null
-            stateDescription = reason
+            stateDesc = null
+            stateDesc = reason
         }
 
         private fun add(

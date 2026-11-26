@@ -10,6 +10,8 @@ import me.akshitbansal.edgepad.Motion
 import me.akshitbansal.edgepad.Space
 import me.akshitbansal.edgepad.link.xfer.XferPhase
 import me.akshitbansal.edgepad.link.xfer.XferSnapshot
+import me.akshitbansal.edgepad.animatorsEnabled
+import me.akshitbansal.edgepad.barsAndCutout
 
 /**
  * Holds [XferCardView] in a floating window at the bottom of [owner], above the navigation bar: it never takes focus
@@ -75,7 +77,7 @@ class XferCard(
     private fun open() {
         if (!owner.isAttachedToWindow) return
         val bars =
-            owner.rootWindowInsets?.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
+            owner.rootWindowInsets?.barsAndCutout()
         val width =
             minOf(
                 owner.width - (bars?.left ?: 0) - (bars?.right ?: 0) - 2 * ui.dp(Space.PAGE),
@@ -92,7 +94,7 @@ class XferCard(
         val side = maxOf(bars?.left ?: 0, bars?.right ?: 0) + ui.dp(Space.PAGE)
         val above = (bars?.bottom ?: 0) + ui.dp(Space.PAGE)
         popup.showAtLocation(owner, Gravity.BOTTOM or Gravity.END, side, above)
-        if (ValueAnimator.areAnimatorsEnabled()) {
+        if (animatorsEnabled()) {
             view.alpha = 0f
             view
                 .animate()

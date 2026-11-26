@@ -431,6 +431,8 @@ object SettingsScreen {
         // The system keeps the choice for this app and rebuilds the activity when it changes what is drawn;
         // the link survives the rebuild. MODE_NIGHT_AUTO is how an app hands the choice back: the system then
         // sets no night mode of its own for the app, and the phone's applies.
+        // Per-app night mode is API 31; before it the app follows the phone.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
         ui.context.getSystemService(UiModeManager::class.java)?.setApplicationNightMode(
             when (theme) {
                 Settings.Theme.SYSTEM -> UiModeManager.MODE_NIGHT_AUTO

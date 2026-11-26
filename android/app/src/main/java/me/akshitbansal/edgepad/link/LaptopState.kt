@@ -1,5 +1,6 @@
 package me.akshitbansal.edgepad.link
 
+import android.util.Base64
 import me.akshitbansal.edgepad.link.blob.MediaIconStore
 import me.akshitbansal.edgepad.protocol.CaptureStateToken
 import me.akshitbansal.edgepad.protocol.ControlId
@@ -11,7 +12,6 @@ import me.akshitbansal.edgepad.protocol.PadStatus
 import me.akshitbansal.edgepad.protocol.SignStatus
 import me.akshitbansal.edgepad.protocol.TextKind
 import me.akshitbansal.edgepad.protocol.UnavailableReason
-import java.util.Base64
 
 /** One character of TEXT MACRO_OPEN: what the laptop knows of a macro's app. An unknown one reads as [UNTRACKED]. */
 enum class OpenState(
@@ -490,7 +490,7 @@ class LaptopState {
     /** Null rather than a throw: a chunk that is not base64 is a frame to drop, not a link to close. */
     private fun decode(encoded: String): ByteArray? =
         try {
-            Base64.getDecoder().decode(encoded)
+            Base64.decode(encoded, Base64.DEFAULT)
         } catch (e: IllegalArgumentException) {
             null
         }

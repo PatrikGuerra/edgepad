@@ -3,6 +3,8 @@ package me.akshitbansal.edgepad.link.xfer
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
+import android.os.Build
+import android.os.Environment
 import android.os.StatFs
 import android.provider.MediaStore
 import java.io.File
@@ -55,6 +57,7 @@ class AndroidXferStore(
         part: File,
         name: String,
     ): String? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return publishLegacy(part, name)
         val resolver = context.contentResolver
         val final = SafeName.unique(name) { taken(it) }
         val values =
@@ -76,6 +79,26 @@ class AndroidXferStore(
             null
         } catch (e: RuntimeException) {
             resolver.delete(uri, null, null)
+            null
+        }
+    }
+
+    /**
+     * Before Android 10 MediaStore has no Downloads collection: the file goes to this app's own Download/Edgepad on
+     * shared storage (Android/data/<package>/files), which needs no permission and shows in a file manager.
+     */
+    private fun publishLegacy(
+        part: File,
+        name: String,
+    ): String? {
+        val folder = File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) ?: return null, "Edgepad")
+        if (!folder.isDirectory && !folder.mkdirs()) return null
+        val final = SafeName.unique(name) { File(folder, it).exists() }
+        return try {
+            part.copyTo(File(folder, final))
+            part.delete()
+            final
+        } catch (e: IOException) {
             null
         }
     }

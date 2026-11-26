@@ -10,6 +10,7 @@ import android.os.SystemClock
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
+import android.os.Build
 import me.akshitbansal.edgepad.LaserSizes
 import me.akshitbansal.edgepad.Palette
 import me.akshitbansal.edgepad.protocol.Frame
@@ -300,7 +301,7 @@ class AnnotateCanvas(
     ) {
         super.onLayout(changed, left, top, right, bottom)
         exclusion.set(0, 0, right - left, bottom - top)
-        systemGestureExclusionRects = exclusions
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) systemGestureExclusionRects = exclusions
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {

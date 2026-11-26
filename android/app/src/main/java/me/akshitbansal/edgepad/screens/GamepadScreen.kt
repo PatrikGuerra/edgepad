@@ -33,6 +33,7 @@ import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.hypot
 import kotlin.math.roundToInt
+import me.akshitbansal.edgepad.stateDesc
 
 /**
  * Plays a [GamepadLayout]: draws every control exactly as [GamepadLayoutScreen]'s editor does, but live
@@ -238,7 +239,7 @@ class GamepadScreen(
                 }
             // The state of the view, not its name: a screen reader announces it with the description
             // already set, which is how the player who cannot see the line still hears it.
-            stateDescription = mode
+            stateDesc = mode
             invalidate()
         }
 

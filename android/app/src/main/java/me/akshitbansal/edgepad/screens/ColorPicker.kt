@@ -16,6 +16,8 @@ import me.akshitbansal.edgepad.R
 import me.akshitbansal.edgepad.Space
 import me.akshitbansal.edgepad.Type
 import java.util.Locale
+import me.akshitbansal.edgepad.noAutofill
+import me.akshitbansal.edgepad.stateDesc
 
 /**
  * A colour picked from a strip of round swatches, under a row with the hex of what is chosen and a swatch of
@@ -79,7 +81,7 @@ object ColorPicker {
                 val on = c == chosen
                 outline(ui, ring, on)
                 choice.isSelected = on
-                choice.stateDescription = if (on) ui.string(R.string.chosen) else null
+                choice.stateDesc = if (on) ui.string(R.string.chosen) else null
             }
         }
 
@@ -211,7 +213,7 @@ object ColorPicker {
                 InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS or
                 InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
             imeOptions = EditorInfo.IME_ACTION_DONE
-            importantForAutofill = View.IMPORTANT_FOR_AUTOFILL_NO
+            noAutofill()
             minWidth = ui.dp(HEX_FIELD_DP)
             minHeight = ui.dp(Space.TOUCH)
             contentDescription = ui.string(R.string.color_hex)

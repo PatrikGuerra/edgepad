@@ -9,6 +9,8 @@ import android.view.accessibility.AccessibilityNodeInfo
 import android.view.accessibility.AccessibilityNodeProvider
 import android.widget.Button
 import me.akshitbansal.edgepad.R
+import me.akshitbansal.edgepad.nodeInfo
+import me.akshitbansal.edgepad.stateDesc
 
 /**
  * AND-A-8: a custom-drawn view of [count] controls, each one a virtual node a screen reader can find, read and press,
@@ -33,16 +35,16 @@ internal class ControlNodes(
 
     override fun createAccessibilityNodeInfo(virtualViewId: Int): AccessibilityNodeInfo? {
         if (virtualViewId == HOST_VIEW_ID) {
-            val info = AccessibilityNodeInfo(host)
+            val info = nodeInfo(host)
             host.onInitializeAccessibilityNodeInfo(info)
             for (i in 0 until count) info.addChild(host, i)
             return info
         }
         if (virtualViewId !in 0 until count) return null
-        val node = AccessibilityNodeInfo(host, virtualViewId)
+        val node = nodeInfo(host, virtualViewId)
         node.setParent(host)
         node.contentDescription = label(virtualViewId)
-        node.stateDescription = state(virtualViewId)
+        node.stateDesc = state(virtualViewId)
         if (clickable(virtualViewId)) {
             node.className = Button::class.java.name
             node.isClickable = true

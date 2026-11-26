@@ -6,8 +6,10 @@ import android.content.ClipboardManager
 import android.content.ContentResolver
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import me.akshitbansal.edgepad.link.blob.ClipboardContent
 import me.akshitbansal.edgepad.link.blob.ClipboardSurface
@@ -109,15 +111,19 @@ class AndroidClipboard(
     // Android hides the clipboard from an app without focus, as when a laptop connects while Edgepad is still opening.
     // Then "now" stands in for the clip's own stamp: whatever is there was copied before it, and a copy made after it,
     // in another app, is still sent when Edgepad comes back.
+    // ClipDescription.timestamp is API 26; before it every read counts as new, which the sync's own dedupe absorbs.
+    private fun stamp(description: ClipDescription?): Long =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) description?.timestamp ?: 0L else System.currentTimeMillis()
+
     override fun settle() {
-        settled = manager.primaryClipDescription?.timestamp?.takeIf { it > 0 } ?: System.currentTimeMillis()
+        settled = stamp(manager.primaryClipDescription).takeIf { it > 0 } ?: System.currentTimeMillis()
     }
 
     // The description first: it carries the timestamp and the sensitive flag, and reading it neither shows Android's
     // "pasted from your clipboard" notice nor opens the content, so a clip that will not be sent is never read.
     override fun read(): ClipboardContent? {
         val description = manager.primaryClipDescription ?: return null
-        if (description.timestamp <= settled) return null
+        if (stamp(description) <= settled) return null
         // Before anything is opened: a password manager's copy is never touched, let alone sent.
         if (isSensitive(description)) return null
         val clip = manager.primaryClip ?: return null
@@ -202,16 +208,31 @@ class AndroidClipboard(
     // Decoded to size from the header, so a huge image never fills the memory; this also applies its EXIF rotation.
     private fun shrunkPng(uri: Uri): ByteArray? {
         val decoded =
-            ImageDecoder.decodeBitmap(ImageDecoder.createSource(resolver, uri)) { decoder, info, _ ->
-                val scale = decodeScale(info.size.width, info.size.height)
-                decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
-                decoder.setTargetSize(scaled(info.size.width, scale), scaled(info.size.height, scale))
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                legacyDecode(uri) ?: return null
+            } else {
+                ImageDecoder.decodeBitmap(ImageDecoder.createSource(resolver, uri)) { decoder, info, _ ->
+                    val scale = decodeScale(info.size.width, info.size.height)
+                    decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
+                    decoder.setTargetSize(scaled(info.size.width, scale), scaled(info.size.height, scale))
+                }
             }
         return try {
             fittedEncoding(ClipboardSync.MAX_IMAGE_BYTES) { scale -> png(decoded, scale) }
         } finally {
             decoded.recycle()
         }
+    }
+
+    /** Before Android 9: BitmapFactory sampled down by powers of two to near the same pixel cap. No EXIF rotation. */
+    private fun legacyDecode(uri: Uri): Bitmap? {
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        resolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, bounds) }
+        if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
+        var sample = 1
+        while (decodeScale(bounds.outWidth / sample, bounds.outHeight / sample) < 1.0) sample *= 2
+        val options = BitmapFactory.Options().apply { inSampleSize = sample }
+        return resolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, options) }
     }
 
     private fun png(

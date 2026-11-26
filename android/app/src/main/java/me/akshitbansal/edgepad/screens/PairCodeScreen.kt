@@ -9,6 +9,8 @@ import me.akshitbansal.edgepad.R
 import me.akshitbansal.edgepad.Space
 import me.akshitbansal.edgepad.Type
 import me.akshitbansal.edgepad.surface.Clock
+import me.akshitbansal.edgepad.a11yHeading
+import me.akshitbansal.edgepad.paneTitle
 
 /**
  * A network pairing, in two states. First the code, shown large for the laptop's owner to type into Edgepad
@@ -57,7 +59,7 @@ class PairCodeScreen(
             grow()
             headline(title, Type.TITLE).apply {
                 gravity = Gravity.CENTER
-                isAccessibilityHeading = true
+                a11yHeading = true
             }
             val explanation =
                 if (asking) ui.string(R.string.pair_confirm_body) else ui.string(R.string.pair_body, laptopName)
@@ -117,7 +119,7 @@ class PairCodeScreen(
     }
 
     init {
-        view.accessibilityPaneTitle = title
+        view.paneTitle = title
         if (!asking) tick.run()
     }
 

@@ -1,5 +1,6 @@
 package me.akshitbansal.edgepad.screens
 
+import android.os.Build
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.InsetDrawable
 import android.util.TypedValue
@@ -13,6 +14,8 @@ import android.widget.ScrollView
 import me.akshitbansal.edgepad.R
 import me.akshitbansal.edgepad.Space
 import me.akshitbansal.edgepad.Type
+import me.akshitbansal.edgepad.a11yHeading
+import me.akshitbansal.edgepad.tooltip
 
 /**
  * What the media and gamepad layout editors and the gamepad itself share, after the design: the canvas
@@ -134,7 +137,7 @@ object EditorFrame {
             addBack(root, ui, onBack)
             val label =
                 ui.text(title, Type.VALUE, ui.palette.dim, face = Type.bold).apply {
-                    isAccessibilityHeading = true
+                    a11yHeading = true
                 }
             onRetitle?.invoke { label.text = it }
             root.addView(
@@ -229,7 +232,7 @@ object EditorFrame {
             background = disc(ui, ui.palette.card)
             if (!ui.palette.dark) elevation = ui.dp(ROUND_ELEVATION_DP).toFloat()
             contentDescription = label
-            tooltipText = label
+            tooltip = label
             ui.tappable(this, ROUND_DP / 2, onTap)
             // The press and the focus ring land on the drawn circle.
             val room = slack(ui)
@@ -327,7 +330,7 @@ object EditorFrame {
                 maxLines = 1
                 gravity = Gravity.END
                 visibility = View.INVISIBLE
-                setAutoSizeTextTypeUniformWithConfiguration(
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) setAutoSizeTextTypeUniformWithConfiguration(
                     HINT_MIN_SP,
                     Type.MICRO.toInt(),
                     1,
@@ -400,7 +403,7 @@ object EditorFrame {
             val gap = (ui.dp(Space.TOUCH) - ui.dp(RESET_DP)) / 2
             background = InsetDrawable(ui.rounded(ui.palette.accentSoft, RESET_DP / 2), gap, gap, gap, gap)
             contentDescription = label
-            tooltipText = label
+            tooltip = label
             addView(idle, centre)
             addView(armed, FrameLayout.LayoutParams(icon, icon, Gravity.CENTER))
             ui.tappable(this, RESET_DP / 2) {

@@ -148,6 +148,7 @@ class GallerySamples(
                     KeyboardSize.FULL,
                     FnMode.WITH_FN,
                     DeviceOs.WINDOWS,
+                    height = 1f,
                     onKey = { _, _ -> },
                     onAction = {},
                     onSettings = {},

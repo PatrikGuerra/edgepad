@@ -246,7 +246,7 @@
   <string name="dial_preview_description">Prévia de uma régua de canto no tamanho escolhido</string>
   <string name="keyboard_text_size">Tamanho do texto do teclado</string>
   <string name="keyboard_height">Altura do teclado</string>
-  <string name="keyboard_height_caption">Quanto da tela o teclado ocupa. Abaixo de 100%, ele fica embaixo e as teclas ficam mais baixas.</string>
+  <string name="keyboard_height_caption">Quanto da tela o teclado ocupa. Abaixo de 100%%, ele fica embaixo e as teclas ficam mais baixas.</string>
   <string name="control_color">Cor dos controles</string>
   <string name="control_color_auto">Automática</string>
   <string name="control_color_custom">Personalizada</string>
